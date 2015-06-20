@@ -8,3 +8,5 @@
 /bin/ssh-bastion.cmd
 /bin/upload-certificates.cmd
 /bin/setenv.cmd
+/bin/package.cmd
+/bin/package.sh

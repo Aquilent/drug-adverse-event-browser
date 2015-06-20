@@ -1,0 +1,1 @@
+{"virtualbox":{"/var/tmp/gsa-ads/chef":{"create":true,"owner":"root","group":"root","guestpath":"/var/tmp/gsa-ads/chef","hostpath":"D:/Projects/GSA-ADS/branches/master/src/main/chef","disabled":false},"/vagrant":{"guestpath":"/vagrant","hostpath":"D:/Projects/GSA-ADS/branches/master/src/test/chef/default","disabled":false}}}

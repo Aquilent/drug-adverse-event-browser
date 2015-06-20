@@ -1,0 +1,28 @@
+<VirtualHost *:80>
+  ProxyPreserveHost On
+  ProxyRequests Off
+
+  ProxyPass /svn/ <%= node['gsa_ads']['bastion']['shared_dev_protocol'] 
+    %>://<%= node['gsa_ads']['bastion']['shared_dev_hostname'] %>/svn/
+  ProxyPassReverse /svn/ <%= node['gsa_ads']['bastion']['shared_dev_protocol'] 
+    %>://<%= node['gsa_ads']['bastion']['shared_dev_hostname'] %>/svn/
+
+  ProxyPass /olympus/ <%= node['gsa_ads']['bastion']['shared_mon_protocol'] 
+    %>://<%= node['gsa_ads']['bastion']['shared_mon_hostname'] %>/olympus/
+  ProxyPassReverse /olympus/ <%= node['gsa_ads']['bastion']['shared_mon_protocol'] 
+    %>://<%= node['gsa_ads']['bastion']['shared_mon_hostname'] %>/olympus/
+
+  <Location /svn>
+    AuthType basic
+    AuthBasicAuthoritative Off
+    SetEnv proxy-chain-auth On
+    Order allow,deny
+    Allow from all
+  </Location>
+
+  <Location /olympus>
+    Order allow,deny
+    Allow from all
+  </Location>
+
+</VirtualHost>

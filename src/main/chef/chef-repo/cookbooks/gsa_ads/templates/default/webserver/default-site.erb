@@ -1,0 +1,37 @@
+<VirtualHost *:<%=node['apache']['listen_ports'][0].to_i%>>
+  ServerAdmin <%= node['apache']['contact'] %>
+
+  DocumentRoot <%= node['apache']['docroot_dir'] %>/
+  <Directory <%= node['apache']['docroot_dir'] %>/>
+    Options Indexes FollowSymLinks MultiViews
+    AllowOverride All
+    Order allow,deny
+    Allow from all
+    RewriteEngine on
+    RewriteBase /
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} !^/__health__(.*)$
+    RewriteRule ^(.*)$ index.php?q=$1 [L,QSA]
+  </Directory>
+
+  #RewriteLog "/etc/httpd/logs/rewrite.log"
+  #RewriteLogLevel 3
+
+  LogFormat "%{X-Forwarded-For}i %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" proxy
+  CustomLog /var/log/httpd/access.log proxy
+
+  <% if %w[rhel fedora].include?(node['platform_family']) -%>
+  #
+  # This configuration file enables the default "Welcome"
+  # page if there is no default index page present for
+  # the root URL.
+  #
+  <LocationMatch "^/+$">
+    Options -Indexes
+    ErrorDocument 403 /error/noindex.html
+  </LocationMatch>
+  <% end -%>
+
+</VirtualHost>
+

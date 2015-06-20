@@ -1,0 +1,16 @@
+
+PROJECT=<%= node['gsa_ads']['project_name'] %>
+REGION=<%= node['gsa_ads']['aws_region'] %>
+
+DEV_APP_PROTOCOL=<%= node['gsa_ads']['bastion']['dev_app_protocol'] %>
+DEV_APP_HOSTNAME=<%= node['gsa_ads']['bastion']['dev_app_hostname'] %>
+DEV_APP_CERTIFICATE=<%= node['gsa_ads']['project_name'] %>-dev-app.pem
+
+DEV_WEB_PROTOCOL=<%= node['gsa_ads']['bastion']['dev_web_protocol'] %>
+DEV_WEB_HOSTNAME=<%= node['gsa_ads']['bastion']['dev_web_hostname'] %>
+DEV_WEB_CERTIFICATE=<%= node['gsa_ads']['project_name'] %>-dev-web.pem
+
+SHARED_DEV_PROTOCOL=<%= node['gsa_ads']['bastion']['shared_dev_protocol'] %>
+SHARED_DEV_HOSTNAME=<%= node['gsa_ads']['bastion']['shared_dev_hostname'] %>
+SHARED_DEV_REPONAME=<%= node['gsa_ads']['bastion']['shared_dev_reponame'] %>
+

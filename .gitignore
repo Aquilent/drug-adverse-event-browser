@@ -1,0 +1,7 @@
+target
+/bin/create-stack.cmd
+/bin/create-stack.sh
+/src/main/cloud-formation
+/src/main/chef-templates
+/src/main/stack-configuration-defaults.ini
+/src/main/bootstrap

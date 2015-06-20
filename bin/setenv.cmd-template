@@ -15,47 +15,17 @@ REM This could manifest itself, as the Vagrant box never becoming accessible
 REM if "%DEFAULT_VAGRANT_BOX%" == "" (set DEFAULT_VAGRANT_BOX=chef/centos-6.6-i386 )
 
 REM ----------------------------------------------------------------
-REM BASTIONHOST indicates the ip address of your current bastion host
-REM 
-if "%BASTIONHOST%" == "" ( set BASTIONHOST=domain_name_or_ip_address )
-
-REM ----------------------------------------------------------------
-REM BASTIONKEY indicates the full path of the downloaded Bastion server 
-REM     key pair certificate (.PEM) file
-REM 
-REM if "%BASTIONKEY%" == "" ( set BASTIONKEY=/path/to/bastion_server.pem )
-
-
-REM ----------------------------------------------------------------
-REM Setting PUTTY_HOME and PUTTY_SESSION_NAME is optional
-REM PuTTY can be used to (1) upload all certificates, and (2) login to bastion server
-REM In that case both PUTTY_HOME and PUTTY_SESSION_HOME are required
-REM     PUTTY_HOME indicates the location where PuTTY is installed
-REM     PUTTY_SESSION_NAME indicates the name of a session (setup with
-REM          at a minimum  the bastion key
-REM if "%PUTTY_HOME%" == "" ( set PUTTY_HOME=/path/to/Putty )
-REM set PUTTY_SESSION_NAME="Name of a PuTTY-saved session"
-
-
-REM ----------------------------------------------------------------
 REM Change the name of the branch from 'master' to 'your-branch-name' 
 REM when using a branch, rather than master
 REM Tags should checked-out to the branches directory as well, e.g. branches/your-tag-name,
 REM such that all script will work 
 if "%1" == "" (set BRANCH_NAME=master) else (set BRANCH_NAME=%1)
 
-
 REM -----------------------------------------------------------------------------------------------
 REM The following section should (typically) not be changed
 REM -----------------------------------------------------------------------------------------------
 
-if "%BRANCH_NAME%" == "master" (
-    set BRANCH_HOME=%PROJECT_HOME%/master
-) else (
-    set BRANCH_HOME=%PROJECT_HOME%/branches/%BRANCH_NAME%
-)
+set BRANCH_HOME=%PROJECT_HOME%/branches/%BRANCH_NAME%
 
-if "BASTION_USERNAME" == "" (
-    set BASTION_USERNAME=ec2-user
-)
+
 

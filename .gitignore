@@ -5,3 +5,6 @@
 /src/main/chef-templates
 /src/main/stack-configuration-defaults.ini
 /src/main/bootstrap
+/bin/ssh-bastion.cmd
+/bin/upload-certificates.cmd
+/bin/setenv.cmd

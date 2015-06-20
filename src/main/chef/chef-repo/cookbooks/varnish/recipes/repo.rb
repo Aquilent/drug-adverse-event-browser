@@ -29,8 +29,16 @@ when 'debian'
 when 'rhel', 'fedora'
   # CUSTOMIZATIONS to ensure that the Amazon platform version is converted to a RHEL version of 6
   case "#{node['platform_version'].to_i}"
-  when '2013', '2014'
+  when '2013', '2014', 
      platform_version = '6'
+  # ------------------------------------------------------------------------------------
+  #  CUSTOMIZATION START: Added Amazon LInux 2015
+  # ------------------------------------------------------------------------------------
+  when '2015'
+     platform_version = '7'
+  # ------------------------------------------------------------------------------------
+  #  CUSTOMIZATION END: Added Amazon LInux 2015
+  # ------------------------------------------------------------------------------------
   else 
      platform_version = "#{node['platform_version'].to_i}"
   end    

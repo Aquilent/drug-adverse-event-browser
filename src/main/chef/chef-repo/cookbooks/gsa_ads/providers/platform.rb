@@ -45,6 +45,7 @@ def platform_install (context)
         end
     end
 
+    platform_install_binary "functions"
     platform_install_additional_repos
     platform_install_ntp
 

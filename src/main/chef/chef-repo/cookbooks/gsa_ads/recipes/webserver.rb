@@ -37,8 +37,6 @@ if !isBlank(WEBSERVER['application_home']) then
 end
 APPLICATION_HOME=node['apache']['docroot_dir']
 
-#include_recipe "selinux::permissive"
-
 gsa_ads_httpd "webserver" do
     listen_ports %w[8080]
     doc_root APPLICATION_HOME
@@ -53,9 +51,12 @@ template "#{APPLICATION_HOME}/index.html" do
     mode '0755'
 end
 
-# TODO:
-#    set selinux permissions
-#    set selinux to enforcing
+[ "start-services", "stop-services", "verify-services", "set-permissions"].each do |name|
+  drupal_platform_platform "#{name}" do
+      template_source_dir "webserver/platform/bin"
+      action :install_binary
+  end
+end
 
 #------------------------------------------------------------------------------
 #             Install Varnish

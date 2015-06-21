@@ -92,6 +92,10 @@ def platform_httpd_install (context, name, doc_root, listen_ports, modules_defau
         end
     end
 
+# TODO:
+#    set selinux permissions
+#    set selinux to enforcing
+
 
 end
 

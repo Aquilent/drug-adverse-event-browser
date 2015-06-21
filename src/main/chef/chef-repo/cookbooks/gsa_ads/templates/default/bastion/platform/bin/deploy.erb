@@ -1,0 +1,184 @@
+#!/bin/bash
+
+SCRIPT_NAME="promote"
+
+source /opt/gsa-ads/bin/functions
+
+CONFIG_FILE=/opt/gsa-ads/conf/manage.conf
+
+function aws {
+    local command="$1"
+    local subcommand="$2"
+    shift; shift
+    "${AWS}" "${command}" "${subcommand}" --region "${AWS_REGION}" "$@"
+}
+
+function set_application {
+    APPLICATION="$1"
+}
+
+function set_branch_name {
+    BRANCH_NAME="$1"
+}
+
+function set_config_file {
+    CONFIG_FILE="$1"
+    if [ ! -f "${CONFIG_FILE}" ];  then
+        exit_error"Configuration file '${CONFIG_FILE}' not found."
+    fi   
+}
+
+function set_environment {
+    ENVIRONMENT="$1"
+    case $ENVIRONMENT in
+        int|test|prod)    ;;
+        *)                exit_error "Unknwon environment '${ENVIRONMENT}'." ;;
+    esac
+}
+
+function get_parameters {
+    while test $# -gt 0; do
+        case $1 in
+          -a*|--application*)   set_application `get_parameter "(-a|--application)" "$1"` ;;
+          -b*|--branch*)        set_branch_name `get_parameter "(-b|--branch)" "$1"` ;;
+          -c*|--configfile*)    set_config_file `get_parameter "(-c|--configfile)" "$1"` ;;
+          -e*|--environment*)   set_environment `get_parameter "(-e|--environment)" "$1"` ;;
+          -v|--verbose)         set_verbose ;;
+        esac
+        shift
+    done
+}
+
+function get_properties {
+    local current_user=`whoami`
+
+    if [ "${CONFIG_FILE}" == "" ];  then
+      exit_error "No configuration file specified."
+    fi  
+    if [ "${ENVIRONMENT}" == "" ];  then
+      exit_error "No environment specified."
+    fi  
+    if [ "${BRANCH_NAME}" == "" ]; then
+        case $ENVIRONMENT in 
+            prod)      BRANCH_NAME="master" ;;
+            test)      BRANCH_NAME="test-candidates" ;;
+            int)       BRANCH_NAME="integration" ;;
+        esac
+    fi
+
+    PROJECT=`get_property "PROJECT_NAME"`
+    AWS_REGION=`get_property "AWS_REGION"`
+    BUCKET_NAME=`get_property "S3_BUCKET_NAME"`
+    CHARGE_CODE=`get_property "CHARGE_CODE"`
+    GIT_OWNER=`get_property "GIT_OWNER"`
+    GIT_REPO=`get_property "GIT_REPO"`
+    GIT_CERT=`get_property "GIT_CERT"`
+    GIT_TOKEN=`get_property "GIT_TOKEN"`
+    GIT_USER=`get_property "GIT_USER" "${current_user}"`
+
+    if [ "${APPLICATION}" == "" ]; then
+        APPLICATION=`get_property "APPLICATION"`
+    fi
+
+    DEPLOY_CONFIG=`get_property "DEPLOY_CONFIG" "CodeDeployDefault.OneAtATime"`
+
+    DEPLOY_GROUP="${PROJECT}-${ENVIRONMENT}-group"
+}
+
+function initialize {
+    get_parameters "$@"
+    get_properties
+}
+
+function create_tag_value {
+    local name="$1"
+    local value="$2"
+    echo "\"${name}\": \"${value}\""
+}
+function create_s3_location {
+    local path="$1"
+    local type="$2"
+    local version="$3"
+    local bucket=`create_tag_value "bucket", "${BUCKET_NAME}"`
+    local key=`create_tag_value "key", "${path}"`
+    if [ "${version}" != "" ]; then
+        version_tag=","`create_tag_value "version", "${version}"`
+    fi
+    local bundletype=`create_tag_value "bundleType", "${type}"`
+    echo "{${bucket},${key},${bundletype}${version_tag}"
+}
+
+
+function setup_ssh_agent {
+    eval `ssh-agent -s`> /dev/null
+}
+
+function kill_ssh_agent {
+    if [ ${SSH_AGENT_PID+1} == 1 ]; then
+       ssh-add -D
+       ssh-agent -k > /dev/null 2>&1
+       unset SSH_AGENT_PID
+       unset SSH_AUTH_SOCK
+    fi
+}
+
+function copy_sources {
+    local to_dir="$1"
+    local dir=`mktemp -d`
+    setup_ssh_agent
+
+    writeln "Cloning ${GIT_OWNER}/${GIT_REPO} using ${GIT_CERT}"
+    if [ -d "${dir}" ]; then
+        rm -rf "${dir}"
+    fi
+    mkdir "${dir}"
+    pushd "${dir}" > /dev/null 2&>1
+    ssh-add -t 30 "/home/${GIT_USER}/.ssh/${GIT_CERT}"
+    git clone --branch "${BRANCH_NAME}" "ssh://git@github.com/${GIT_OWNER}/${GIT_REPO}.git"
+    kill_ssh_agent
+    mv "${dir}/${GIT_REPO}/src/main/php" "${to_dir}"
+    popd > /dev/null 2&>1
+    rm -rf "${dir}"
+}
+
+function create_archive {
+    local archive="$1"
+    local version_home=`mktemp -d`
+    rm -rf "${version_home}"
+    mkdir -p "${version_home}/src"
+    copy_sources "${version_home}/src"
+    cp -f /opt/gsa-ads/conf/appspec.yml "${version_home}"
+    tar -zcvf "${archive}" --directory="${version_home}/" src/
+    rm -rf "${version_home}"
+}
+
+
+function deploy {
+    local version_id=`create_version_id`
+    local version="${ENVIRONMENT}-${version_id}"
+    local archive_name="${PROJECT}-${version}"
+    local path="env/${ENVIRONMENT}/files/${archive_name}"
+    local extension="tgz"
+    local archive="/tmp/${archive_name}.${extension}"
+
+    create_archive "${archive}"
+
+    writeln "Push ${archive} to ${APPLICATION} at s3://${BUCKET_NAME}/${path}.${extension}"
+    aws deploy push --application-name "${APPLICATION}" --source "${archive}" \
+        --s3-location "s3://${BUCKET_NAME}/${path}.${extension}"
+
+    writeln "Create from ${archive} at ${APPLICATION} using ${DEPLOY_GROUP} and ${DEPLOY_CONFIG}"
+    aws deploy create-deployment --application-name "${APPLICATION}" \
+        --deployment-group-name "${DEPLOY_GROUP}" \
+        --deployment-config-name "${DEPLOY_CONFIG}" \
+        --s3-location `create_s3_location "${path}" "${extension}" "${version}"`
+
+    rm -f "${archive}"
+
+    # MUST update the webserver roles to allow the codedeploy service
+    # Must update the bastion server to allow creating a new codedeploy deployment
+}
+
+initialize "$@"
+deploy
+

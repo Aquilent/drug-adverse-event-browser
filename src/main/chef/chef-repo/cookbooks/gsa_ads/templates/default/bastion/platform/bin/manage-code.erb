@@ -283,16 +283,16 @@ function update_remote {
 
     writeln "Copy files to ${type} server [${int_sync_dir}]"
     verbose_verbose "$int_scp ${synchronize_file} ${hostname}:${int_sync_dir}/"
-    $int_scp "${synchronize_file}" "${DEVOPS_USER}@${hostname}:${int_sync_dir}/" | \
-        exit_error "Failed to copy synchronization script"
+    $int_scp "${synchronize_file}" "${DEVOPS_USER}@${hostname}:${int_sync_dir}/" && \
+        `exit_error "Failed to copy synchronization script"; exit 1`
     verbose_verbose "$int_scp -r ${mainsrc} ${hostname}:${int_sync_dir}"
-    $int_scp -r "${mainsrc}" "${DEVOPS_USER}@${hostname}:${int_sync_dir}" | \
-        exit_error "Failed to copy application files script"
+    $int_scp -r "${mainsrc}" "${DEVOPS_USER}@${hostname}:${int_sync_dir}" && \
+        `exit_error "Failed to copy application files script"; exit 1`
 
     writeln "Synchronize files on ${type} server"
     commands=`execute_remote_after_update "${int_sync_dir}" "${type}"`
     verbose_verbose "${int_ssh} ${commands}"
-    $int_ssh $commands $redirect | exit_error "Failed to execute syncrhonization"
+    $int_ssh $commands $redirect && `exit_error "Failed to execute synchronization"; exit 1`
 }
 
 function promote_code {

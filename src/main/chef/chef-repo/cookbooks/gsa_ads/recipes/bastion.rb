@@ -29,14 +29,14 @@ end
 #             Install life-cycle management
 #------------------------------------------------------------------------------
 
-[ "deploy"].each do |name|
-  drupal_platform_platform "#{name}" do
+[ "manage-code", "synchronize" ].each do |name|
+  gsa_ads_platform "#{name}" do
       template_source_dir "bastion/platform/bin"
       action :install_binary
   end
 end
 
-[ "manage.conf", "appspec.yml" ].each do |name|
+[ "manage.conf" ].each do |name|
   gsa_ads_platform "#{name}" do
       template_source_dir "bastion/platform/conf"
       action :install_configuration

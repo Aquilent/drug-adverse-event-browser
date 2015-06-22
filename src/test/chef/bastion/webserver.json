@@ -3,9 +3,6 @@
       "project_name": "DEFAULT-TEST",
       "environment": "int",
       "aws_region": "us-east1", // Normally a placeholder
-      "git_owner": "Aquilent",
-      "git_repo": "drug-adverse-event-browser",
-      "s3_bucket_name": "dummy.gsa.ads.gov",
       "aws_logwatch": {
           "install": true,
           "log_group": "DUMMY_LOGGROUP_NAME", // Normally a placeholder
@@ -19,14 +16,15 @@
               "webserver": "platform/iptables/webserver"
           }
       },
-      "bastion": {
-        "int_app_hostname": "192.168.10.3"
+      "webserver": {
+        "application_home": "/var/www/html"
       }
    },
    "run_list": [
       "recipe[gsa_ads::platform]",
       "recipe[gsa_ads::aws_logwatch]",
-      "recipe[gsa_ads::bastion]"
+      "recipe[gsa_ads::aws_codedeploy]",
+      "recipe[gsa_ads::webserver]"
    ]
 }
 

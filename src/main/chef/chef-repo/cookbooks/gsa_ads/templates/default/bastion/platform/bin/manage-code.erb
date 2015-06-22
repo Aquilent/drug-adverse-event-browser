@@ -1,0 +1,311 @@
+#!/bin/sh
+
+SCRIPT_NAME='manage-code'
+export PLATFORM_HOME="/opt/gsa-ads"
+
+. "${PLATFORM_HOME}/bin/functions"
+
+CONFIG_FILE="${PLATFORM_HOME}/conf/manage.conf"
+
+# -- parameters
+FRESH=
+BRANCH=
+RESTART="${TRUE_VALUE}"
+SECURE="${TRUE_VALUE}"
+#ACTION="promote"
+ENVIRONMENT="int"
+
+SSH_BYPASSHOSTCHECK="${FALSE_VALUE}"
+
+# -- properties
+APP_CERTIFICATE=
+APP_HOSTNAME=
+WEB_CERTIFICATE=
+WEB_HOSTNAME=
+DEVOPS_USER=`whoami`
+
+
+# -- other local variables
+BRANCH_PATH=
+LOCAL_DIR=
+FORCED_CHECKOUT=
+
+
+function usage {
+    local message="$1"
+    local exit_code=0
+
+    if [ "${message}" != "" ]; then
+        echo "ERROR: ${message}" >&2
+        echo "" >&2
+        exit_code=1
+    fi
+
+    cat <<EOF
+Usage: SCRIPT_NAME [OPTIONS] promote
+
+promote
+    Promote code from the installed Source Code Control (SCC) system (e.g. Subversion) 
+    to the Development (Dev) environment. Will check out the designated code from the 
+    SCC system to a local directory, copy the necessary files to the Drupal app server, 
+    and restart the services on the web and app servers to affect the change.
+    Note that on an initial promotion all code will be checked-out to the local directory,
+    but on subsequent promotions, only the changed code will be pulled from the SCC system.
+    To force all code to be checked out use the --fresh option.
+
+Options:
+  --branch=branch, -b=branch   Check out a specific (development) branch.
+                               Defaults to trunk.
+  --config-file=path, -c=path  Use the give path to find the configuration file.
+                               Defaults to ${CONFIG_FILE}.
+  --fresh, -f                  Refreshes the local checked out version of 
+                               the development branch.
+  --no-restart                 By default the relavent services on the app and web 
+                               servers are restarted. By providing this option this
+                               step is skipped. Not that skipping this step may cause 
+                               certain changes to not be in effect, specifically due
+                               to caching.
+  --no-secure                  By default all pending software updates are applied
+                               to both the web and app server. By providing this 
+                               option, this step is skipped.
+  --quiet, -q                  Show less information.
+  --revision=rev, -r=rev       Check out a specific named revision.
+  --verbose, -v                Show more information. Repeat this option to 
+                               get even more information.
+EOF
+
+    exit $exit_code
+}
+
+
+function set_non_option_parameter {
+    local value="$1"
+    if [ "${ACTION}" == "" ]; then
+        ACTION="${value}"
+    else
+        usage "Unknown argument '${value}'" 
+    fi 
+}
+
+function get_parameters {
+    while test $# -gt 0; do
+        case $1 in
+          --app-host*)          APP_HOSTNAME=`get_parameter "--app-host" "$1"` ;;
+          --branch*|-b*)        epxort BRANCH=`get_parameter "(-b|--branch)" "$1"` ;;
+          --bypass-hostcheck)   SSH_BYPASSHOSTCHECK="${TRUE_VALUE}" ;;
+          --config-file*|-c*)   CONFIG_FILE=`get_parameter "(-c|--config-file)" "$1"` ;;
+          --environment*|-e*)   ENVIRONMENT=`get_parameter "(-e|--environment)" "$1"` ;;
+          --fresh|-f)           FRESH="${TRUE_VALUE}" ;;
+          --help|-h)            usage ;;
+          --no-restart)         RESTART="${FALSE_VALUE}" ;;
+          --no-secure)          SECURE="${FALSE_VALUE}" ;;
+          --quiet|-q)           set__quiet ;;
+          --revision*|-r*)      REVISION_ID=`get_parameter "(-r|--revision)" "$1"` ;;
+          --verbose|-v)         set_verbose ;;
+          --web-host*)          WEB_HOSTNAME=`get_parameter "--web-host" "$1"` ;;
+          *)                    set_non_option_parameter "${1}" ;;
+        esac
+        shift
+    done
+}
+
+function get_properties {
+    local current_user=`whoami`
+
+    if [ "${CONFIG_FILE}" == "" ];  then
+      exit_error "No configuration file specified."
+    fi  
+    if [ "${ENVIRONMENT}" == "" ];  then
+      exit_error "No environment specified."
+    fi  
+    case $ENVIRONMENT in
+        int|test|prod)    ;;
+        *)                exit_error "Unknown environment '${ENVIRONMENT}'." ;;
+    esac
+    local ENV=`echo "${ENVIRONMENT}" | awk '{print toupper($1);}'`
+
+    if [ "${APP_HOSTNAME}" == "" ]; then
+        # NOT provided as a parameter, hence use the value from the configuration file
+        APP_HOSTNAME=`get_property "${ENV}_APP_HOSTNAME"`
+    fi
+    APP_CERTIFICATE=`get_property "${ENV}_APP_CERTIFICATE"`
+
+    if [ "${WEB_HOSTNAME}"  == "" ]; then
+        # NOT provided as a parameter, hence use the value from the configuration file
+        WEB_HOSTNAME=`get_property "${ENV}_WEB_HOSTNAME"`
+    fi
+    WEB_CERTIFICATE=`get_property "${ENV}_WEB_CERTIFICATE"`
+
+
+    PROJECT=`get_property "PROJECT"`
+    AWS_REGION=`get_property "REGION"`
+    BUCKET_NAME=`get_property "S3_BUCKET_NAME"`
+    CHARGE_CODE=`get_property "CHARGE_CODE"`
+    GIT_OWNER=`get_property "GIT_OWNER"`
+    GIT_REPO=`get_property "GIT_REPO"`
+    GIT_CERT=`get_property "GIT_CERT"`
+    GIT_USER=`get_property "GIT_USER" "${current_user}"`
+    if [ "${BRANCH_NAME}" == "" ]; then
+      BRANCH_NAME=`get_property "${ENV}_BRANCHNAME" "master"`
+    fi
+
+    LOCAL_DIR_PREFIX=`get_property "LOCAL_DIR_PREFIX" "/var/tmp/${PROJECT}/${ENVIRONMENT}"`
+    LOCAL_DIR="${LOCAL_DIR_PREFIX}/${BRANCH_PATH}"
+}
+
+function initialize {
+    get_parameters "$@"
+    get_properties
+
+    if [ "${FRESH}" != "" ]; then
+        rm -rf "${LOCAL_DIR}"
+    fi
+    if [ ! - d "${LOCAL_DIR}" ]; then
+        mkdir -p "${LOCAL_DIR}"
+    fi
+}
+
+function setup_ssh_agent {
+    eval `ssh-agent -s`> /dev/null
+}
+
+function kill_ssh_agent {
+    if [ ${SSH_AGENT_PID+1} == 1 ]; then
+       ssh-add -D
+       ssh-agent -k > /dev/null 2>&1
+       unset SSH_AGENT_PID
+       unset SSH_AUTH_SOCK
+    fi
+}
+
+function copy_sources {
+    local to_dir="$1"
+    local dir=`mktemp -d`
+    local rsync_options="--recursive --update --delete --exclude .git/"
+    setup_ssh_agent
+
+    if [ -d "${dir}" ]; then
+        rm -rf "${dir}"
+    fi
+    mkdir "${dir}"
+    pushd "${dir}" > /dev/null 2>&1
+    writeln "Cloning ${BRANCH_NAME} ${GIT_OWNER}/${GIT_REPO} using ${GIT_CERT}"
+    ssh-add -t 30 "/home/${GIT_USER}/.ssh/${GIT_CERT}"
+    git clone --branch "${BRANCH_NAME}" "ssh://git@github.com/${GIT_OWNER}/${GIT_REPO}.git"
+    ls -al "${dir}/${GIT_REPO}"
+    ls -al "${dir}/${GIT_REPO}/src/main/"
+    kill_ssh_agent
+    verbose "Preparing to copy sources to "'${to_dir}'""
+    mkdir -p "${dir}/web"
+    if [ -d "${dir}/${GIT_REPO}/src/main/php" ]; then
+      rsync $rsync_options "${dir}/${GIT_REPO}/src/main/php" "${to_dir}/web/"
+    else 
+        writeln "No application (PHP) sources found"
+    fi
+    if [ -d "${dir}/${GIT_REPO}/src/main/varnish" ]; then
+        rsync $rsync_options "${dir}/${GIT_REPO}/src/main/varnish" "${to_dir}/web/"
+    else 
+        writeln "No varnish sources found"
+    fi
+    mkdir -p "${dir}/app"
+    popd > /dev/null 2>&1
+    rm -rf "${dir}"
+}
+
+
+function update_local {
+    mkdir -p "${LOCAL_DIR}"
+    # Need to change to the root of the LOCAL_DIR for 'updates' to work
+    pushd "${LOCAL_DIR}"
+    verbose "Remove all excluded files from source code control"
+    #verbose "Removing shared files directory ..."
+    #rm -rf "${LOCAL_DIR}/app/drupal/sites/default/files"
+    popd
+    copy_sources "${LOCAL_DIR}"
+    writeln "Check ${LOCALDIR}"
+    ls -al "${LOCALDIR}"
+    ls -al "${LOCALDIR}/web"
+}
+
+
+function execute_remote_before_update {
+    local sync_dir="$1"
+    local server_type="$2"
+    local commands="sudo mkdir -p '${sync_dir}'"
+    commands="${commands}; sudo chmod 777 '${sync_dir}'"
+    if [ "${SECURE}" == "${TRUE_VALUE}" ]; then
+        commands="${commands}; sudo yum -y update"
+    fi
+    echo "bash -c '${commands}'"
+}
+
+function execute_remote_after_update {
+    local sync_dir="$1"
+    local type="$2"
+    local commands="sudo chmod 755 ${sync_dir}/synchronize"
+    if [ "${VERBOSE}" != "" ]; then
+        verbose="--verbose"
+    fi
+    # Call synchronize command on remote server to complete process 
+    commands="${commands}; sudo ${sync_dir}/synchronize --server-type '${type}'"
+    commands="${commands} --sync-dir '${sync_dir}/${type}' ${verbose}"
+    if [ "${RESTART}" != "${TRUE_VALUE}" ]; then
+        commands="${commands} --no-restart"
+    fi
+    echo "bash -c '${commands}'"
+}
+
+function update_remote {
+    local type="$1"
+    local certificate=
+    local hostname=
+    
+    case  "${type}" in
+        "web") certificate="${WEB_CERTIFICATE}"; hostname="${WEB_HOSTNAME}" ;;
+        "app") certificate="${APP_CERTIFICATE}"; hostname="${APP_HOSTNAME}" ;;
+        *)     exit_error "Unknown server type: Cannot update a remote ${type} server." ;;
+    esac
+    writeln "Updating '${type}' server at '${hostname}'"
+
+    local int_ssh=`ssh_command "${certificate}" "${DEVOPS_USER}@${hostname}" "" \\
+        "${SSH_BYPASSHOSTCHECK}"`
+    local int_sync_dir="/tmp/gsa-ads/promote"
+    local int_scp=`scp_command "${certificate}" "" "${SSH_BYPASSHOSTCHECK}"`
+    local synchronize_file="/opt/gsa-ads/bin/synchronize"
+    local mainsrc="${LOCAL_DIR}/${type}"
+    local redirect=
+
+    if [ "${QUIET}" != "" ]; then 
+        redirect=' 2>&1 > /dev/null'
+    fi
+
+    writeln "Prepare ${type} server for copying files"
+    local commands=`execute_remote_before_update "${int_sync_dir}"`
+    verbose_verbose "${int_ssh} ${commands}"
+    $int_ssh $commands $redirect
+
+    writeln "Copy files to ${type} server [${int_sync_dir}]"
+    verbose_verbose "$int_scp ${synchronize_file} ${hostname}:${int_sync_dir}/"
+    $int_scp "${synchronize_file}" "${DEVOPS_USER}@${hostname}:${int_sync_dir}/"
+    verbose_verbose "$int_scp -r ${mainsrc} ${hostname}:${int_sync_dir}"
+    $int_scp -r "${mainsrc}" "${DEVOPS_USER}@${hostname}:${int_sync_dir}"
+
+    writeln "Synchronize files on ${type} server"
+    commands=`execute_remote_after_update "${int_sync_dir}" "${type}"`
+    verbose_verbose "${int_ssh} ${commands}"
+    $int_ssh $commands $redirect
+}
+
+function promote_code {
+    update_local
+    update_remote "web"
+    verbose "Code promoted"
+}
+
+initialize "$@"
+
+case "${ACTION}" in
+    promote)      promote_code ;;
+    *)            usage "Unknown action '${ACTION}'" ;;
+esac
+

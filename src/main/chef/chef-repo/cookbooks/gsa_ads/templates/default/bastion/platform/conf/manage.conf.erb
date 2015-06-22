@@ -1,16 +1,33 @@
 
 PROJECT=<%= node['gsa_ads']['project_name'] %>
 REGION=<%= node['gsa_ads']['aws_region'] %>
+S3_BUCKET_NAME=<%= node['gsa_ads']['s3_bucket_name'] %>
 
-DEV_APP_PROTOCOL=<%= node['gsa_ads']['bastion']['dev_app_protocol'] %>
-DEV_APP_HOSTNAME=<%= node['gsa_ads']['bastion']['dev_app_hostname'] %>
-DEV_APP_CERTIFICATE=<%= node['gsa_ads']['project_name'] %>-dev-app.pem
+GIT_OWNER=<%= node['gsa_ads']['git_owner'] %>
+GIT_REPO=<%= node['gsa_ads']['git_repo'] %>
+GIT_CERT=<%= node['gsa_ads']['project_name'] %>-github-ci.pem
 
-DEV_WEB_PROTOCOL=<%= node['gsa_ads']['bastion']['dev_web_protocol'] %>
-DEV_WEB_HOSTNAME=<%= node['gsa_ads']['bastion']['dev_web_hostname'] %>
-DEV_WEB_CERTIFICATE=<%= node['gsa_ads']['project_name'] %>-dev-web.pem
+INT_APP_PROTOCOL=<%= node['gsa_ads']['bastion']['int_app_protocol'] %>
+INT_APP_HOSTNAME=<%= node['gsa_ads']['bastion']['int_app_hostname'] %>
+INT_APP_CERTIFICATE=<%= node['gsa_ads']['project_name'] %>-int-app.pem
 
-SHARED_DEV_PROTOCOL=<%= node['gsa_ads']['bastion']['shared_dev_protocol'] %>
-SHARED_DEV_HOSTNAME=<%= node['gsa_ads']['bastion']['shared_dev_hostname'] %>
-SHARED_DEV_REPONAME=<%= node['gsa_ads']['bastion']['shared_dev_reponame'] %>
+INT_WEB_PROTOCOL=<%= node['gsa_ads']['bastion']['int_web_protocol'] %>
+INT_WEB_HOSTNAME=<%= node['gsa_ads']['bastion']['int_web_hostname'] %>
+INT_WEB_CERTIFICATE=<%= node['gsa_ads']['project_name'] %>-int-web.pem
 
+
+TEST_APP_PROTOCOL=<%= node['gsa_ads']['bastion']['prod_app_protocol'] %>
+TEST_APP_HOSTNAME=<%= node['gsa_ads']['bastion']['prod_app_hostname'] %>
+TEST_APP_CERTIFICATE=<%= node['gsa_ads']['project_name'] %>-prod-app.pem
+
+TEST_WEB_PROTOCOL=<%= node['gsa_ads']['bastion']['prod_web_protocol'] %>
+TEST_WEB_HOSTNAME=<%= node['gsa_ads']['bastion']['prod_web_hostname'] %>
+TEST_WEB_CERTIFICATE=<%= node['gsa_ads']['project_name'] %>-prod-web.pem
+
+PROD_APP_PROTOCOL=<%= node['gsa_ads']['bastion']['prod_app_protocol'] %>
+PROD_APP_HOSTNAME=<%= node['gsa_ads']['bastion']['prod_app_hostname'] %>
+PROD_APP_CERTIFICATE=<%= node['gsa_ads']['project_name'] %>-prod-app.pem
+
+PROD_WEB_PROTOCOL=<%= node['gsa_ads']['bastion']['prod_web_protocol'] %>
+PROD_WEB_HOSTNAME=<%= node['gsa_ads']['bastion']['prod_web_hostname'] %>
+PROD_WEB_CERTIFICATE=<%= node['gsa_ads']['project_name'] %>-prod-web.pem

@@ -10,3 +10,5 @@
 /bin/setenv.cmd
 /bin/package.cmd
 /bin/package.sh
+/src/test/chef/bastion/.vagrant
+/src/test/chef/default/.vagrant

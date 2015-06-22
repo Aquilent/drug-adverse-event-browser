@@ -45,14 +45,14 @@ gsa_ads_httpd "webserver" do
 end
 
 template "#{APPLICATION_HOME}/index.html" do
-    source "webserver/index.html.erb"
+    source "webserver/index.php.erb"
     owner node['apache']['user']
     group node['apache']['group']
     mode '0755'
 end
 
 [ "start-services", "stop-services", "verify-services", "set-permissions"].each do |name|
-  drupal_platform_platform "#{name}" do
+  gsa_ads_platform "#{name}" do
       template_source_dir "webserver/platform/bin"
       action :install_binary
   end

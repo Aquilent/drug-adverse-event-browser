@@ -1,0 +1,86 @@
+#!/bin/sh
+
+SCRIPT_NAME='synchronize'
+
+export PLATFORM_HOME="/opt/gsa-ads"
+. "${PLATFORM_HOME}/bin/functions"
+
+TOUCH=
+SERVER_TYPE=
+SYNC_DIR=
+CLEAN_UP="${TRUE_VALUE}"
+RESTART="${TRUE_VALUE}"
+
+APPLICATION_HOME="/var/www/gsa-ads"
+
+VARNISH_HOME="/etc/varnish"
+#VARNISH_TEMPLATES_DIR="/opt/gsa-ads/templates/varnish"
+
+RSYNC_OPTIONS="--recursive --update --delete --exclude .git/"
+
+function get_parameters {
+    while test $# -gt 0; do
+      case $1 in
+        -d|--sync-dir)          shift; SYNC_DIR="$1" ;;
+        -n|--no-cleanup)        CLEAN_UP="${FALSE_VALUE}" ;;
+        -q|--quiet)             set_quiet ;;
+        -r|--no-restart)        RESTART="${FALSE_VALUE}" ;;
+        -s|--server-type)       shift; SERVER_TYPE="$1" ;;
+        -t|--touch)             TOUCH="${TRUE_VALUE}" ;;
+        -v|--verbose)           set_verbose ;;
+      esac
+      shift
+    done
+}
+
+
+function stop_application {
+    if [ "${RESTART}" == "${TRUE_VALUE}" ]; then
+        "${PLATFORM_HOME}/bin/stop-services"
+    fi
+}
+
+function start_application {
+
+    if [ "${RESTART}" == "${TRUE_VALUE}" ]; then
+        "${PLATFORM_HOME}/bin/start-services"
+        "${PLATFORM_HOME}/bin/verify-services"
+    fi
+}
+
+function synchronize_webserver {
+    local excludes=(--exclude secret)
+    local options="${RSYNC_OPTIONS} ${excludes[@]}"
+
+    stop_application
+    verbose "Synchronize web server"
+    if [ "${TOUCH}" != "" ]; then
+        verbose 'Touch remote files to ensure proper sync'
+        find ${VARNISH_HOME}/ -exec touch {} \;
+        #find ${VARNISH_TEMPLATES_DIR}/ -exec touch {} \;
+        find ${APPLICATION_HOME}/ -exec touch {} \;
+    fi
+    verbose "Synchronize varnish files"
+    verbose rsync ${options} ${VERBOSE} ${SYNC_DIR}/varnish/ "${VARNISH_HOME}"
+    rsync ${options} ${VERBOSE} ${SYNC_DIR}/varnish/ "${VARNISH_HOME}"
+    #verbose rsync ${options} ${VERBOSE} ${SYNC_DIR}/templates/varnish/ "${VARNISH_TEMPLATES_DIR}"
+    #rsync ${options} ${VERBOSE} ${SYNC_DIR}/templates/varnish/ "${VARNISH_TEMPLATES_DIR}"
+
+    verbose "Synchronize application files"
+    verbose rsync ${options} ${VERBOSE} ${SYNC_DIR}/php/ "${APPLICATION_HOME}"
+    rsync ${options} ${VERBOSE} ${SYNC_DIR}/php/ "${APPLICATION_HOME}"
+
+    start_application
+}
+
+function clean_up {
+    if [ "${CLEAN_UP}" == "${TRUE_VALUE}" ];  then
+        rm -rf "${SYNC_DIR}"
+    fi
+}
+
+get_parameters "$@"
+case "${SERVER_TYPE}" in
+    web)  synchronize_webserver ;;
+esac
+clean_up

@@ -66,8 +66,8 @@ function get_properties {
         esac
     fi
 
-    PROJECT=`get_property "PROJECT_NAME"`
-    AWS_REGION=`get_property "AWS_REGION"`
+    PROJECT=`get_property "PROJECT"`
+    AWS_REGION=`get_property "REGION"`
     BUCKET_NAME=`get_property "S3_BUCKET_NAME"`
     CHARGE_CODE=`get_property "CHARGE_CODE"`
     GIT_OWNER=`get_property "GIT_OWNER"`
@@ -99,13 +99,13 @@ function create_s3_location {
     local path="$1"
     local type="$2"
     local version="$3"
-    local bucket=`create_tag_value "bucket", "${BUCKET_NAME}"`
-    local key=`create_tag_value "key", "${path}"`
+    local bucket=`create_tag_value "bucket" "${BUCKET_NAME}"`
+    local key=`create_tag_value "key" "${path}"`
     if [ "${version}" != "" ]; then
-        version_tag=","`create_tag_value "version", "${version}"`
+        version_tag=","`create_tag_value "version" "${version}"`
     fi
-    local bundletype=`create_tag_value "bundleType", "${type}"`
-    echo "{${bucket},${key},${bundletype}${version_tag}"
+    local bundletype=`create_tag_value "bundleType" "${type}"`
+    echo "{${bucket},${key},${bundletype}${version_tag}}"
 }
 
 
@@ -132,23 +132,26 @@ function copy_sources {
         rm -rf "${dir}"
     fi
     mkdir "${dir}"
-    pushd "${dir}" > /dev/null 2&>1
+    pushd "${dir}" > /dev/null 2>&1
     ssh-add -t 30 "/home/${GIT_USER}/.ssh/${GIT_CERT}"
     git clone --branch "${BRANCH_NAME}" "ssh://git@github.com/${GIT_OWNER}/${GIT_REPO}.git"
     kill_ssh_agent
     mv "${dir}/${GIT_REPO}/src/main/php" "${to_dir}"
-    popd > /dev/null 2&>1
+    popd > /dev/null 2>&1
     rm -rf "${dir}"
 }
 
 function create_archive {
     local archive="$1"
     local version_home=`mktemp -d`
+    pushd > /dev/null 2>&1
     rm -rf "${version_home}"
     mkdir -p "${version_home}/src"
     copy_sources "${version_home}/src"
-    cp -f /opt/gsa-ads/conf/appspec.yml "${version_home}"
-    tar -zcvf "${archive}" --directory="${version_home}/" src/
+    cp -f /opt/gsa-ads/conf/appspec.yml "${version_home}/"
+    tar -zcvf "${archive}" --directory="${version_home}/" "src/"
+    tar -zcvf "${archive}" --directory="${version_home}/" "appspec.yml"
+    popd > /dev/null 2>&1
     rm -rf "${version_home}"
 }
 
@@ -158,20 +161,22 @@ function deploy {
     local version="${ENVIRONMENT}-${version_id}"
     local archive_name="${PROJECT}-${version}"
     local path="env/${ENVIRONMENT}/files/${archive_name}"
-    local extension="tgz"
+    local extension="tar.gz"
     local archive="/tmp/${archive_name}.${extension}"
+    local s3_location=`create_s3_location "${path}" "${extension}" "${version}"`
 
     create_archive "${archive}"
 
+    cd
     writeln "Push ${archive} to ${APPLICATION} at s3://${BUCKET_NAME}/${path}.${extension}"
     aws deploy push --application-name "${APPLICATION}" --source "${archive}" \
         --s3-location "s3://${BUCKET_NAME}/${path}.${extension}"
 
-    writeln "Create from ${archive} at ${APPLICATION} using ${DEPLOY_GROUP} and ${DEPLOY_CONFIG}"
+    writeln "Create from ${archive} at ${APPLICATION} using ${DEPLOY_GROUP}/${DEPLOY_CONFIG} at ${s3_location}"
     aws deploy create-deployment --application-name "${APPLICATION}" \
         --deployment-group-name "${DEPLOY_GROUP}" \
         --deployment-config-name "${DEPLOY_CONFIG}" \
-        --s3-location `create_s3_location "${path}" "${extension}" "${version}"`
+        --s3-location "${s3_location}"
 
     rm -f "${archive}"
 

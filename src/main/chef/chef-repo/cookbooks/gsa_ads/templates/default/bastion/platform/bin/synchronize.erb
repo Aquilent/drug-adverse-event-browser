@@ -44,7 +44,7 @@ function start_application {
 
     if [ "${RESTART}" == "${TRUE_VALUE}" ]; then
         "${PLATFORM_HOME}/bin/start-services"
-        "${PLATFORM_HOME}/bin/verify-services"
+        "${PLATFORM_HOME}/bin/verify-services" || error_exit "Service verification failed"
     fi
 }
 

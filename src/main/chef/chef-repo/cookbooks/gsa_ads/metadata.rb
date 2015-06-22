@@ -12,6 +12,7 @@ end
 depends "selinux"
 depends "apache2"
 depends "iptables"
+depends "jenkins"
 depends "php"
 depends "rsync"
 depends "varnish"

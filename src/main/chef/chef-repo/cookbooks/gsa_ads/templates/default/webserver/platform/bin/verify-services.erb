@@ -2,6 +2,6 @@
 
 http_code=`curl -s -o /dev/null -w "%{http_code}" http://localhost`
 
-if [ "${https_code}" != "200" ]; then
-    exit "Service deployment failed"
+if [ "${http_code}" != "200" ]; then
+    error_exit "Service deployment failed"
 fi

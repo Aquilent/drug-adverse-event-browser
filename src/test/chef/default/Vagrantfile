@@ -27,13 +27,17 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     puts "----- Mount #{CHEF_SOURCE_PATH} to #{PROJECT_CHEF_HOME}"
     app.vm.synced_folder "#{SOURCE_PATH}/chef", PROJECT_CHEF_HOME, 
-        create: true,  owner: "root", group: "root"
+        create: true, type:rsync, owner: "root", group: "root"
 
-     app.vm.provision "shell" do | s |
+    app.vm.provision "shell" do | s |
         s.path = "#{CHEF_SOURCE_PATH}/bin/run-chef.sh"
         s.args = ["/vagrant/default.json", "--yum-suppress", "--log-stdout"]
-     end
+    end
 
+    app.vm.synced_folder "#{SOURCE_PATH}/php", "/var/www/gsa-ads"
+        create: true, owner: "root", group: "root", 
+        type:rsync, rsync__exclude: ".git/", rsync__args: ["--verbose", 
+        "--rsync-path='sudo rsync'", "--archive", "--delete", "-z"]
   end
 
 end

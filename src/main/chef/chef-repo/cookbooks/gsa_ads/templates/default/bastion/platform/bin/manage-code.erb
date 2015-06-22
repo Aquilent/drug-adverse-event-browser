@@ -11,7 +11,7 @@ CONFIG_FILE="${PLATFORM_HOME}/conf/manage.conf"
 FRESH=
 BRANCH=
 RESTART="${TRUE_VALUE}"
-SECURE="${TRUE_VALUE}"
+RUN_UPDATE="${TRUE_VALUE}"
 #ACTION="promote"
 ENVIRONMENT="int"
 
@@ -98,7 +98,7 @@ function get_parameters {
           --fresh|-f)           FRESH="${TRUE_VALUE}" ;;
           --help|-h)            usage ;;
           --no-restart)         RESTART="${FALSE_VALUE}" ;;
-          --no-secure)          SECURE="${FALSE_VALUE}" ;;
+          --no-update)          RUN_UPDATE="${FALSE_VALUE}" ;;
           --quiet|-q)           set__quiet ;;
           --revision*|-r*)      REVISION_ID=`get_parameter "(-r|--revision)" "$1"` ;;
           --verbose|-v)         set_verbose ;;
@@ -130,9 +130,11 @@ function get_properties {
     fi
     APP_CERTIFICATE=`get_property "${ENV}_APP_CERTIFICATE"`
 
-    if [ "${WEB_HOSTNAME}"  == "" ]; then
+    if [ "${WEB_HOSTNAME}" == "" ]; then
         # NOT provided as a parameter, hence use the value from the configuration file
         WEB_HOSTNAME=`get_property "${ENV}_WEB_HOSTNAME"`
+    else
+        writeln "WEB_HOSTNAME=${WEB_HOSTNAME}"
     fi
     WEB_CERTIFICATE=`get_property "${ENV}_WEB_CERTIFICATE"`
 
@@ -160,7 +162,7 @@ function initialize {
     if [ "${FRESH}" != "" ]; then
         rm -rf "${LOCAL_DIR}"
     fi
-    if [ ! - d "${LOCAL_DIR}" ]; then
+    if [ ! -d "${LOCAL_DIR}" ]; then
         mkdir -p "${LOCAL_DIR}"
     fi
 }
@@ -192,8 +194,6 @@ function copy_sources {
     writeln "Cloning ${BRANCH_NAME} ${GIT_OWNER}/${GIT_REPO} using ${GIT_CERT}"
     ssh-add -t 30 "/home/${GIT_USER}/.ssh/${GIT_CERT}"
     git clone --branch "${BRANCH_NAME}" "ssh://git@github.com/${GIT_OWNER}/${GIT_REPO}.git"
-    ls -al "${dir}/${GIT_REPO}"
-    ls -al "${dir}/${GIT_REPO}/src/main/"
     kill_ssh_agent
     verbose "Preparing to copy sources to "'${to_dir}'""
     mkdir -p "${dir}/web"
@@ -222,9 +222,6 @@ function update_local {
     #rm -rf "${LOCAL_DIR}/app/drupal/sites/default/files"
     popd
     copy_sources "${LOCAL_DIR}"
-    writeln "Check ${LOCALDIR}"
-    ls -al "${LOCALDIR}"
-    ls -al "${LOCALDIR}/web"
 }
 
 
@@ -233,7 +230,7 @@ function execute_remote_before_update {
     local server_type="$2"
     local commands="sudo mkdir -p '${sync_dir}'"
     commands="${commands}; sudo chmod 777 '${sync_dir}'"
-    if [ "${SECURE}" == "${TRUE_VALUE}" ]; then
+    if [ "${RUN_UPDATE}" == "${TRUE_VALUE}" ]; then
         commands="${commands}; sudo yum -y update"
     fi
     echo "bash -c '${commands}'"
@@ -282,18 +279,20 @@ function update_remote {
     writeln "Prepare ${type} server for copying files"
     local commands=`execute_remote_before_update "${int_sync_dir}"`
     verbose_verbose "${int_ssh} ${commands}"
-    $int_ssh $commands $redirect
+    $int_ssh $commands $redirect || error_exit "Failed to prerpare synchronization"
 
     writeln "Copy files to ${type} server [${int_sync_dir}]"
     verbose_verbose "$int_scp ${synchronize_file} ${hostname}:${int_sync_dir}/"
-    $int_scp "${synchronize_file}" "${DEVOPS_USER}@${hostname}:${int_sync_dir}/"
+    $int_scp "${synchronize_file}" "${DEVOPS_USER}@${hostname}:${int_sync_dir}/" | \
+        exit_error "Failed to copy synchronization script"
     verbose_verbose "$int_scp -r ${mainsrc} ${hostname}:${int_sync_dir}"
-    $int_scp -r "${mainsrc}" "${DEVOPS_USER}@${hostname}:${int_sync_dir}"
+    $int_scp -r "${mainsrc}" "${DEVOPS_USER}@${hostname}:${int_sync_dir}" | \
+        exit_error "Failed to copy application files script"
 
     writeln "Synchronize files on ${type} server"
     commands=`execute_remote_after_update "${int_sync_dir}" "${type}"`
     verbose_verbose "${int_ssh} ${commands}"
-    $int_ssh $commands $redirect
+    $int_ssh $commands $redirect | exit_error "Failed to execute syncrhonization"
 }
 
 function promote_code {

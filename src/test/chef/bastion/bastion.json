@@ -1,4 +1,9 @@
 {
+    "jenkins": { 
+        "master" : {
+            "endpoint": "http://192.168.10.2/jenkins/"
+        }
+    },
    "gsa_ads": {
       "project_name": "DEFAULT-TEST",
       "environment": "int",
@@ -20,12 +25,12 @@
           }
       },
       "bastion": {
-        "int_app_hostname": "192.168.10.3"
+          "int_web_hostname": "192.168.10.3"
       }
    },
    "run_list": [
       "recipe[gsa_ads::platform]",
-      "recipe[gsa_ads::aws_logwatch]",
+      //"recipe[gsa_ads::aws_logwatch]",
       "recipe[gsa_ads::bastion]"
    ]
 }

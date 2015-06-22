@@ -12,7 +12,7 @@ FRESH=
 BRANCH=
 RESTART="${TRUE_VALUE}"
 RUN_UPDATE="${TRUE_VALUE}"
-#ACTION="promote"
+ACTION=
 ENVIRONMENT="int"
 
 SSH_BYPASSHOSTCHECK="${FALSE_VALUE}"
@@ -65,11 +65,10 @@ Options:
                                step is skipped. Not that skipping this step may cause 
                                certain changes to not be in effect, specifically due
                                to caching.
-  --no-secure                  By default all pending software updates are applied
-                               to both the web and app server. By providing this 
-                               option, this step is skipped.
+  --no-update                  By default all pending software updates are applied
+                               to both the web server. By providing this option, 
+                               this step is skipped.
   --quiet, -q                  Show less information.
-  --revision=rev, -r=rev       Check out a specific named revision.
   --verbose, -v                Show more information. Repeat this option to 
                                get even more information.
 EOF
@@ -100,7 +99,6 @@ function get_parameters {
           --no-restart)         RESTART="${FALSE_VALUE}" ;;
           --no-update)          RUN_UPDATE="${FALSE_VALUE}" ;;
           --quiet|-q)           set__quiet ;;
-          --revision*|-r*)      REVISION_ID=`get_parameter "(-r|--revision)" "$1"` ;;
           --verbose|-v)         set_verbose ;;
           --web-host*)          WEB_HOSTNAME=`get_parameter "--web-host" "$1"` ;;
           *)                    set_non_option_parameter "${1}" ;;

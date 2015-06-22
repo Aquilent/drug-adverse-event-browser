@@ -9,3 +9,6 @@
 default['gsa_ads']['server_type'] = "web"
 
 default['gsa_ads']['webserver']['application_home'] = '/var/www/gsa-ads';
+
+default['gsa_ads']['webserver']['use_varnish'] = true;
+

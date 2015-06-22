@@ -31,20 +31,25 @@ end
 #             Install Apache
 #------------------------------------------------------------------------------
 
-WEBSERVER = node['gsa_ads']['webserver']
-if !isBlank(WEBSERVER['application_home']) then
-  node.force_override['apache']['docroot_dir'] = WEBSERVER['application_home'] 
+APPLICATION_HOME=node['gsa_ads']['webserver']['application_home']
+
+USE_VARNISH = (node['gsa_ads']['webserver']['use_varnish'])
+HTTPD_PORT = (USE_VARNISH ? "8080" : "80")
+
+directory "#{APPLICATION_HOME}" do 
+    owner node['apache']['apache']
+    group node['apache']['apache']
+    mode '0755'
 end
-APPLICATION_HOME=node['apache']['docroot_dir']
 
 gsa_ads_httpd "webserver" do
-    listen_ports %w[8080]
-    doc_root APPLICATION_HOME
+    listen_ports ["#{HTTPD_PORT}"]
+    doc_root "#{APPLICATION_HOME}/public"
     modules_default %w[dir expires rewrite]
     action :install
 end
 
-template "#{APPLICATION_HOME}/index.html" do
+template "#{APPLICATION_HOME}/public/index.php" do
     source "webserver/index.php.erb"
     owner node['apache']['user']
     group node['apache']['group']
@@ -58,29 +63,32 @@ end
   end
 end
 
+
 #------------------------------------------------------------------------------
 #             Install Varnish
 #------------------------------------------------------------------------------
+if (USE_VARNISH) then
 
-# override standard Varnish attributes
-node.default['varnish']['storage'] = 'malloc';
-case node[:platform_family]
-when "rhel"
-    node.default['varnish']['dir']     = "/etc/varnish"
-    node.default['varnish']['default'] = "/etc/sysconfig/varnish"
+    # override standard Varnish attributes
+    node.default['varnish']['storage'] = 'malloc';
+    case node[:platform_family]
+    when "rhel"
+        node.default['varnish']['dir']     = "/etc/varnish"
+        node.default['varnish']['default'] = "/etc/sysconfig/varnish"
+    end
+    node.default['varnish']['version'] = '3.0';
+    node.default['varnish']['listen_port'] = '80';
+
+    include_recipe "varnish"
+
+    override_template "#{node['varnish']['dir']}/#{node['varnish']['vcl_conf']}" do
+        recipe_name "varnish"
+    end
+
+    template "#{node['varnish']['dir']}/no_cache.vcl" do
+        source "varnish/no_cache.vcl.erb"
+        owner node['varnish']['user']
+        group node['varnish']['group']
+    end
+
 end
-node.default['varnish']['version'] = '3.0';
-node.default['varnish']['listen_port'] = '80';
-
-include_recipe "varnish"
-
-override_template "#{node['varnish']['dir']}/#{node['varnish']['vcl_conf']}" do
-    recipe_name "varnish"
-end
-
-template "#{node['varnish']['dir']}/no_cache.vcl" do
-    source "varnish/no_cache.vcl.erb"
-    owner node['varnish']['user']
-    group node['varnish']['group']
-end
-

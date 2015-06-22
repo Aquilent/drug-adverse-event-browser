@@ -1,7 +1,8 @@
 #!/bin/bash
 
-http_code=`curl -s -o /dev/null -w "%{http_code}" http://localhost`
+url="http://localhost/""
+http_code=`curl -s -o /dev/null -w "%{http_code}" "${url}"`
 
 if [ "${http_code}" != "200" ]; then
-    error_exit "Service deployment failed. HTTPS-code: ${https_code}"
+    exit_error "Service deployment failed. '${url}' http-code=[${http_code}]"
 fi

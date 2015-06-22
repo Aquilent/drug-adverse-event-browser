@@ -38,6 +38,7 @@ def platform_httpd_install (context, name, doc_root, listen_ports, modules_defau
     node.default['apache']['keepalivetimeout'] = 15
     if default_site_enabled then
         node.default['apache']['docroot_dir'] = doc_root
+        node.force_override['apache']['docroot_dir'] = doc_root
 
         directory doc_root do
             owner 'root'

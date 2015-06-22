@@ -1,4 +1,4 @@
-<VirtualHost *:<%=node['apache']['listen_ports'][0].to_i%>>
+sudo vi /etc/httpd<VirtualHost *:<%=node['apache']['listen_ports'][0].to_i%>>
   ServerAdmin <%= node['apache']['contact'] %>
 
   DocumentRoot <%= node['apache']['docroot_dir'] %>/

@@ -70,6 +70,8 @@ function synchronize_webserver {
     verbose rsync ${options} ${VERBOSE} ${SYNC_DIR}/php/ "${APPLICATION_HOME}"
     rsync ${options} ${VERBOSE} ${SYNC_DIR}/php/ "${APPLICATION_HOME}"
 
+    
+
     start_application
 }
 

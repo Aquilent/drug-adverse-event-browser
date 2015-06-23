@@ -76,8 +76,8 @@
     <title>Drug Adverse Event Browser</title>
 
     <!-- Bootstrap -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/custom_aq.css" rel="stylesheet">
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/custom_aq.css" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -121,8 +121,8 @@
       @yield('content')
 
       <footer>
-        <span style="float:left;">Powered by <a href="http://www.aquilent.com" title="Aquilent Web Site"><img src="img/aquilent-logo-footer.png" alt="Aquilent logo" /></a></span>
-      <span style="float:right;">using data from <a href="https://open.fda.gov" title="openFDA Web Site"><img src="img/openFDA.png" alt="openFDA logo" /></span>
+        <span style="float:left;">Powered by <a href="http://www.aquilent.com" title="Aquilent Web Site"><img src="/img/aquilent-logo-footer.png" alt="Aquilent logo" /></a></span>
+      <span style="float:right;">using data from <a href="https://open.fda.gov" title="openFDA Web Site"><img src="/img/openFDA.png" alt="openFDA logo" /></span>
       </footer>
     </div>
         <div class="col-md-2"><!-- blank column to constrict content width in desktop mode --></div>
@@ -135,13 +135,7 @@
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="js/bootstrap.min.js"></script>
-  <script>
-    jQuery(document).ready(function($) {
-      $(".clickable-row").click(function() {
-        window.document.location = $(this).data("href");
-        });
-    });
-  </script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/app.js"></script>
   </body>
 </html>

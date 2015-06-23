@@ -11,15 +11,6 @@
 |
 */
 
-// Route::get('/', 'WelcomeController@index');
-
-// Route::get('home', 'HomeController@index');
-
-// Route::controllers([
-// 	'auth' => 'Auth\AuthController',
-// 	'password' => 'Auth\PasswordController',
-// ]);
-
 Route::get('/', function()
 {
     return view('index');
@@ -44,3 +35,20 @@ Route::get('outcomes', function()
 {
     return view('outcomes');
 });
+
+Route::get('/', function()
+{
+    return view('index');
+});
+
+Route::post('/', 'ReactionController@getReactions');
+
+Route::get('/{drug}', [
+  'as'   => 'listReactions',
+  'uses' => 'ReactionController@listReactions'
+]);
+
+Route::get('/{drug}/{reaction}', [
+  'as'   => 'listInteractions',
+  'uses' => 'ReactionController@listInteractions'
+]);

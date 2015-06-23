@@ -54,6 +54,7 @@ template "#{APPLICATION_HOME}/public/index.php" do
     owner node['apache']['user']
     group node['apache']['group']
     mode '0755'
+    action :create_if_missing
 end
 
 [ "start-services", "stop-services", "verify-services", "set-permissions"].each do |name|

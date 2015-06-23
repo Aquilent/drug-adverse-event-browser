@@ -13,3 +13,4 @@
 /src/test/chef/bastion/.vagrant
 /src/test/chef/default/.vagrant
 /src/test/chef/bastion/*.pem
+/src/test/chef/default/*.stackdump

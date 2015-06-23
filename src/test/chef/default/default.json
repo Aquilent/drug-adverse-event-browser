@@ -17,7 +17,8 @@
           }
       },
       "webserver": {
-        "use_varnish": false
+        "use_varnish": false,
+        "application_home": "/var/www/html"
       }
    },
    "run_list": [

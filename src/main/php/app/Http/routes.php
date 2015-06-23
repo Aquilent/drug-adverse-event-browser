@@ -11,11 +11,36 @@
 |
 */
 
-Route::get('/', 'WelcomeController@index');
+// Route::get('/', 'WelcomeController@index');
 
-Route::get('home', 'HomeController@index');
+// Route::get('home', 'HomeController@index');
 
-Route::controllers([
-	'auth' => 'Auth\AuthController',
-	'password' => 'Auth\PasswordController',
-]);
+// Route::controllers([
+// 	'auth' => 'Auth\AuthController',
+// 	'password' => 'Auth\PasswordController',
+// ]);
+
+Route::get('/', function()
+{
+    return view('index');
+});
+
+Route::get('instructions', function()
+{
+    return view('instructions');
+});
+
+Route::get('disclaimers', function()
+{
+    return view('disclaimers');
+});
+
+Route::get('interactions', function()
+{
+    return view('interactions');
+});
+
+Route::get('outcomes', function()
+{
+    return view('outcomes');
+});

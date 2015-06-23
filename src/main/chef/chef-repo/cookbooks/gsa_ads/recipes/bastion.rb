@@ -19,7 +19,7 @@ include_recipe "rsync"
 #------------------------------------------------------------------------------
 
 gsa_ads_httpd "bastion" do
-    modules_default %w[mod_auth_basic]
+    #modules_default %w[mod_auth_basic]
     modules_no_config %w[proxy]
     modules_custom_config %w[proxy_http]
     action :install
@@ -31,8 +31,8 @@ end
 
 node.default['jenkins']['master']['install_method'] = 'package'
 
-# include_recipe "jenkins::java"
-# include_recipe "jenkins::master"
+include_recipe "jenkins::java"
+include_recipe "jenkins::master"
 
 # jenkins_user "jenkins-admin" do
 # end
@@ -43,15 +43,15 @@ node.default['jenkins']['master']['install_method'] = 'package'
 #   password    'Tester1&'
 # end
 
-# deploy_int_xml = File.join(Chef::Config[:file_cache_path], 'deploy-int.xml')
-# template deploy_int_xml do
-#   source 'bastion/jenkins/deploy-int.xml.erb'
-# end
+deploy_int_xml = File.join(Chef::Config[:file_cache_path], 'deploy-int.xml')
+template deploy_int_xml do
+  source 'bastion/jenkins/deploy-int.xml.erb'
+end
 
-# jenkins_job 'deploy-int' do
-#   config deploy_int_xml
-#   action :create
-# end
+jenkins_job 'deploy-int' do
+  config deploy_int_xml
+  action :create
+end
 
 
 #------------------------------------------------------------------------------

@@ -1,3 +1,4 @@
+<p>[Short instructional text from Sara]</p>
 <form action="/" method="post" class="drug-submittal">
   <input type="hidden" name="_token" value="{{{ csrf_token() }}}" />
   <div class="form-group">

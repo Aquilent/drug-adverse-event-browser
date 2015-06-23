@@ -1,0 +1,10 @@
+#!/bin/sh
+
+application_home="<%= node['gsa_ads']['webserver']['application_home'] %>"
+
+curl -sS https://getcomposer.org/installer | php -- --install-dir="/tmp"
+pushd "${application_home}"
+php "/tmp/composer.phar" install
+popd
+rm -f "/tmp/composer.phar"
+

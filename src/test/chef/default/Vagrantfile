@@ -15,8 +15,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   APP_IP = isEmpty(ENV['APP_IP']) ? '192.168.11.12' : ENV['APP_IP']
 
-  APPLICATION_HOME="/var/www/html"
-  APPLICATION_SYNC_HOME = "/var/tmp/gsa-ads/php"
+  APPLICATION_HOME="/var/www/gsa-ads"
 
   config.vm.boot_timeout = 600;
 
@@ -47,6 +46,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         s.args = ["/vagrant/default.json", "--yum-suppress", "--log-stdout"]
     end
 
+    app.vm.provision "shell" do | s |
+        s.inline = "/opt/gsa-ads/bin/install-php-composer"
+    end
   
   end
 

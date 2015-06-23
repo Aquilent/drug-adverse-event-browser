@@ -1,5 +1,8 @@
 <?php namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
+use App\FDAConnector;
+
 class WelcomeController extends Controller {
 
 	/*
@@ -28,9 +31,12 @@ class WelcomeController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function index()
+	public function index(Request $request)
 	{
-		return view('welcome');
+		$connector = new FDAConnector();
+		$reactions = $connector->getDrugReactions($request->get('drug'));
+		
+		return view('welcome', compact('reactions'));
 	}
 
 }

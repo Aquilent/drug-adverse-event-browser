@@ -21,7 +21,7 @@ include_recipe "rsync"
 #------------------------------------------------------------------------------
 
 gsa_ads_php "webserver" do
-    packages %w[php-mbstring php-gd php-pdo php-dom php-mysql php-devel]
+    packages %w[php-mbstring php-gd php-pdo php-dom php-mysql php-devel php-openssl php-mcrypt php-tokenizer]
     #pear_packages %w[uploadprogress]
     pear_channels %w[pear.drush.org]
     action :install
@@ -64,6 +64,15 @@ end
   end
 end
 
+# ruby_block "install-composer"
+#    block
+#         command <<EOH
+#             curl -sS https://getcomposer.org/installer | php
+#             php composer.phar install
+#         EOH
+#         do_bash("install-composer", command)
+#     end
+# end
 
 #------------------------------------------------------------------------------
 #             Install Varnish

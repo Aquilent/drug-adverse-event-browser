@@ -33,14 +33,7 @@ class ReactionController extends Controller {
 	 */
 	public function getReactions(Request $request)
 	{
-
-		return redirect()->route('listReactions', [$request->drug]);
-
-		dd($request->all());
-		$connector = new FDAConnector();
-		$reactions = $connector->getDrugReactions($drug);
-		
-		return view('index', compact('drug', 'reactions'));
+		return redirect()->route('listReactions', [ format_title($request->drug) ]);
 	}
 
 	/**
@@ -51,9 +44,9 @@ class ReactionController extends Controller {
 	public function listReactions(Request $request, $drug)
 	{
 		$connector = new FDAConnector();
-		$reactions = $connector->getDrugReactions($drug);
+		$reactions = $this->limitResults($connector->getDrugReactions($drug));
 		
-		return view('index', compact('drug', 'reactions'));
+		return view('reactions', compact('drug', 'reactions'));
 	}
 
 	/**
@@ -64,9 +57,21 @@ class ReactionController extends Controller {
 	public function listInteractions(Request $request, $drug, $reaction)
 	{
 		$connector = new FDAConnector();
-		$reactions = $connector->getDrugReactions($drug);
+		$interactions = $this->limitResults($connector->getDrugReactionInteractions($drug, $reaction));
 		
-		return view('index', compact('drug', 'reactions'));
-	}  
+		return view('interactions', compact('drug', 'reaction', 'interactions'));
+	} 
+
+	/**
+	 * Show the application welcome screen to the user.
+	 *
+	 * @return Response
+	 */
+	protected function limitResults($results) 
+	{
+		if (app('request')->get('show') == 'all') return $results;
+
+		return collect($results)->take(10)->toArray();
+	}
 
 }

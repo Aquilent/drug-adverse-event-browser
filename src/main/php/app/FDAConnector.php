@@ -21,15 +21,13 @@ class FDAConnector {
     ]);
   }
 
-  public function getDrugReactionOutcomes($drug, $reaction) {
+  public function getDrugReactionInteractions($drug, $reaction) {
     return $this->sendQuery([
-      'search' => '(patient.drug.openfda.brand_name:' . $this->formatQueryString($drug) . ')+AND+patient.reaction.reactionmeddrapt:' . $this->formatQueryString($reaction),
-      //'count'  => 'patient.reaction.reactionoutcome.exact',
-      'limit' => 100,
-      'skip' => 6000
+      'search' => '(patient.drug.openfda.brand_name:' . $this->formatQueryString($drug) . '+AND+patient.reaction.reactionmeddrapt:' . $this->formatQueryString($reaction) . ')',
+      'count'  => 'patient.drug.openfda.brand_name.exact',
     ]);
   }
-
+  
   protected function sendQuery($query) {
     $url = $this->formatUrl($query);
     info('Requesting: ' . $url);

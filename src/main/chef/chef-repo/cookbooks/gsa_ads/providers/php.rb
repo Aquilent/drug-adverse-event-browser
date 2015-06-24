@@ -20,7 +20,8 @@ end
 
 def platform_php_install (context, name, packages, pear_packages, pear_channels)
 
-    has_php54 = (node['platform_family'] == 'rhel') && (node['platform_version'].to_f >= 7)
+    has_php54 = (node['platform_family'] == 'rhel') && (node['platform_version'].to_f >= 7) && 
+        (node['platform_version'].to_f < 2013) 
 
     if has_php54 then
         node.default['php']['packages'] = PHP_DEFAULT_PACKAGES
@@ -40,15 +41,6 @@ def platform_php_install (context, name, packages, pear_packages, pear_channels)
     end
 
     context.include_recipe "php"
-
-    # if !has_php54 then
-    #     ruby_block "replace-php-with_webtatic-php" do
-    #         block do
-    #             do_bash("install-replace-plugin", "yum install -y yum-plugin-replace")
-    #             do_bash("replace-php-common", "yum replace -y php-common --replace-with=php54w-common")
-    #         end
-    #     end
-    # end
 
     install_packages(packages)
 

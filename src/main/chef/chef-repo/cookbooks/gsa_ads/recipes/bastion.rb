@@ -25,34 +25,6 @@ gsa_ads_httpd "bastion" do
     action :install
 end
 
-#------------------------------------------------------------------------------
-#             Install Jenkins
-#------------------------------------------------------------------------------
-
-node.default['jenkins']['master']['install_method'] = 'package'
-
-include_recipe "jenkins::java"
-include_recipe "jenkins::master"
-
-# jenkins_user "jenkins-admin" do
-# end
-
-# jenkins_password_credentials 'jenkins-admin' do
-#   id 'f2361e6b-b8e0-4b2b-890b-82e85bc1a59f'
-#   description 'Administartor'
-#   password    'Tester1&'
-# end
-
-deploy_int_xml = File.join(Chef::Config[:file_cache_path], 'deploy-int.xml')
-template deploy_int_xml do
-  source 'bastion/jenkins/deploy-int.xml.erb'
-end
-
-jenkins_job 'deploy-int' do
-  config deploy_int_xml
-  action :create
-end
-
 
 #------------------------------------------------------------------------------
 #             Install life-cycle management
@@ -61,7 +33,7 @@ end
 package "git" do
 end
 
-[ "manage-code", "synchronize" ].each do |name|
+[ "manage-code", "synchronize", "setup-jenkins", "set-up-jenkins-credentials" ].each do |name|
   gsa_ads_platform "#{name}" do
       template_source_dir "bastion/platform/bin"
       action :install_binary
@@ -74,3 +46,30 @@ end
       action :install_configuration
   end
 end
+
+
+#------------------------------------------------------------------------------
+#             Install Jenkins
+#------------------------------------------------------------------------------
+
+node.default['jenkins']['master']['install_method'] = 'package'
+
+include_recipe "jenkins::java"
+include_recipe "jenkins::master"
+
+#jenkins_user "jenkins-admin" do
+#end
+
+%w[int test prod].each do |env|
+
+  config_file = File.join(Chef::Config[:file_cache_path], "deploy-#{env}.xml")
+  template config_file do
+    source "bastion/jenkins/deploy-#{env}.xml.erb"
+  end
+
+  jenkins_job "deploy-to-#{env}" do
+    config config_file
+    action :create
+  end
+
+end  

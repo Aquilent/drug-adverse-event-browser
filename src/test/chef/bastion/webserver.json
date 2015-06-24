@@ -17,13 +17,11 @@
           }
       },
       "webserver": {
-        "application_home": "/var/www/html"
+          "use_varnish": false
       }
    },
    "run_list": [
       "recipe[gsa_ads::platform]",
-      "recipe[gsa_ads::aws_logwatch]",
-      "recipe[gsa_ads::aws_codedeploy]",
       "recipe[gsa_ads::webserver]"
    ]
 }

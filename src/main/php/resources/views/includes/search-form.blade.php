@@ -1,9 +1,1 @@
-<p>[Short instructional text from Sara]</p>
-<form action="/" method="post" class="drug-submittal">
-  <input type="hidden" name="_token" value="{{{ csrf_token() }}}" />
-  <div class="form-group">
-    <label for="drug">Enter a drug name to start your search</label>
-    <input type="text" class="form-control" id="drug" name="drug" value="{{ $drug or '' }}"placeholder="Drug name">
-  </div>
-  <button type="submit" class="btn btn-default center-block btn-primary">SEARCH</button>
-</form>
+<p>Medicines can sometimes cause a problem when taken alone or with other drugs. This is called an adverse reaction. Find out if the medicine you are taking has a history of adverse reactions.</p><form action="/" method="post" class="drug-submittal">  <input type="hidden" name="_token" value="{{{ csrf_token() }}}" />  <div class="form-group">    <label for="drug">Enter the name of a drug to find out if any adverse reactions were reported.</label>    <input type="text" class="form-control" id="drug" name="drug" value="{{ $drug or '' }}"placeholder="Drug name">  </div>  <button type="submit" class="btn btn-default center-block btn-primary">SEARCH</button></form>

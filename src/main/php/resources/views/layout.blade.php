@@ -1,72 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-<!--
-    -\-                                                     
-    \-- \-                                                  
-     \  - -\                                                
-      \      \\                                             
-       \       \                                            
-        \       \\                                              
-         \        \\                                            
-         \          \\                                        
-         \           \\\                                      
-          \            \\                                                 
-           \            \\                                              
-           \. .          \\                                  
-            \    .       \\                                 
-             \      .    \\                                            
-              \       .  \\                                 
-              \         . \\                                           
-              \            <=)                                         
-              \            <==)                                         
-              \            <=)                                           
-               \           .\\                                           _-
-               \         .   \\                                        _-//
-               \       .     \\                                     _-_/ /
-               \ . . .        \\                                 _--_/ _/
-                \              \\                              _- _/ _/
-                \               \\                      ___-(O) _/ _/ 
-                \                \                  __--  __   /_ /      ***********************************
-                \                 \\          ____--__----  /    \_       I AM A MOTHERFUCKING PTERODACTYL
-                 \                  \\       -------       /   \_  \_     HERE TO PTERO-YOU A NEW ASSHOLE
-                  \                   \                  //   // \__ \_   **********************************
-                   \                   \\              //   //      \_ \_ 
-                    \                   \\          ///   //          \__- 
-                    \                -   \\/////////    //            
-                    \            -         \_         //              
-                    /        -                      //                
-                   /     -                       ///                  
-                  /   -                       //                      
-             __--/                         ///
-  __________/                            // |               
-//-_________      ___                ////  |                
-        ____\__--/                /////    |                
-   -----______    -/---________////        |                
-     _______/  --/    \                   |                 
-   /_________-/       \                   |                 
-  //                  \                   /                 
-                       \.                 /                 
-                       \     .            /                 
-                        \       .        /                  
-                       \\           .    /                  
-                        \                /                  
-                        \              __|                  
-                        \              ==/                  
-                        /              //                   
-                        /          .  //                    
-                        /   .  .    //                      
-                       /.           /                       
-                      /            //                       
-                      /           /
-                     /          //
-                    /         //
-                 --/         /
-                /          //
-            ////         //
-         ///_________////
-
-
--->
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -98,7 +31,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#"><img src="img/header-logo.png" alt="Aquilent logo" /></a>
+          <a class="navbar-brand" href="/"><img src="/img/header-logo.png" alt="Aquilent logo" /></a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav navbar-right">
@@ -114,22 +47,34 @@
 
       <div class="row">
         <div class="col-md-2"><!-- blank column to constrict content width in desktop mode --></div>
-    <!-- Primary content column -->
+        <!-- Primary content column -->
         <div class="col-md-8">
-      <h1>Drug Adverse Event Browser</h1>
+          <h1>Drug Adverse Event Browser</h1>
 
-      @yield('content')
-
-      <footer>
-        <span style="float:left;">Powered by <a href="http://www.aquilent.com" title="Aquilent Web Site"><img src="/img/aquilent-logo-footer.png" alt="Aquilent logo" /></a></span>
-      <span style="float:right;">using data from <a href="https://open.fda.gov" title="openFDA Web Site"><img src="/img/openFDA.png" alt="openFDA logo" /></span>
-      </footer>
-    </div>
+          @yield('content')
+        </div>
         <div class="col-md-2"><!-- blank column to constrict content width in desktop mode --></div>
       </div>
 
-
     </div> <!-- /container -->
+
+    <footer class="clearfix">
+      <div class="logos">
+        <a href="http://www.aquilent.com" title="Aquilent Web Site"><img src="/img/aquilent-logo-footer.png" alt="Aquilent logo" /></a><br />
+      <a href="https://open.fda.gov" title="openFDA Web Site"><img src="/img/openFDA.png" alt="openFDA logo" /></a>
+      </div>
+      <div class="links">
+        <strong>Connect</strong><br />
+      <a href="#" title="Instructions">Feedback</a><br />
+      <a href="#" title="Instructions">Email Us</a><br />
+      <a href="#" title="Disclaimers">Follow</a>
+      </div>
+      <div class="links">
+        <strong>About</strong><br />
+      <a href="/instructions" title="Instructions">Instructions</a><br />
+      <a href="/disclaimers" title="Disclaimers">Disclaimers</a>
+      </div>
+    </footer>
 
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->

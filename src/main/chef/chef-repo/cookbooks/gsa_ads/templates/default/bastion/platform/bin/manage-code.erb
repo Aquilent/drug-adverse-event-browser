@@ -136,7 +136,8 @@ function get_properties {
     fi
     WEB_CERTIFICATE=`get_property "${ENV}_WEB_CERTIFICATE"`
 
-
+    HOME="/home/${current_user}"
+    DEVOPS_USER=`get_property "DEVOPS_USER"`
     PROJECT=`get_property "PROJECT"`
     AWS_REGION=`get_property "REGION"`
     BUCKET_NAME=`get_property "S3_BUCKET_NAME"`
@@ -146,7 +147,7 @@ function get_properties {
     GIT_CERT=`get_property "GIT_CERT"`
     GIT_USER=`get_property "GIT_USER" "${current_user}"`
     if [ "${BRANCH_NAME}" == "" ]; then
-      BRANCH_NAME=`get_property "${ENV}_BRANCHNAME" "master"`
+        BRANCH_NAME=`get_property "${ENV}_BRANCH_NAME" "master"`
     fi
 
     LOCAL_DIR_PREFIX=`get_property "LOCAL_DIR_PREFIX" "/var/tmp/${PROJECT}/${ENVIRONMENT}"`
@@ -213,12 +214,6 @@ function copy_sources {
 
 function update_local {
     mkdir -p "${LOCAL_DIR}"
-    # Need to change to the root of the LOCAL_DIR for 'updates' to work
-    pushd "${LOCAL_DIR}"
-    verbose "Remove all excluded files from source code control"
-    #verbose "Removing shared files directory ..."
-    #rm -rf "${LOCAL_DIR}/app/drupal/sites/default/files"
-    popd
     copy_sources "${LOCAL_DIR}"
 }
 
@@ -247,7 +242,6 @@ function execute_remote_after_update {
     if [ "${RESTART}" != "${TRUE_VALUE}" ]; then
         commands="${commands} --no-restart"
     fi
-    commands="${commands}; sudo /opt/gsa-ads/bin/install-php-composer"
     echo "bash -c '${commands}'"
 }
 
@@ -261,7 +255,7 @@ function update_remote {
         "app") certificate="${APP_CERTIFICATE}"; hostname="${APP_HOSTNAME}" ;;
         *)     exit_error "Unknown server type: Cannot update a remote ${type} server." ;;
     esac
-    writeln "Updating '${type}' server at '${hostname}'"
+    writeln "Updating '${type}' server at '${hostname}' as '${DEVOPS_USER}' from '${HOME}'"
 
     local int_ssh=`ssh_command "${certificate}" "${DEVOPS_USER}@${hostname}" "" \\
         "${SSH_BYPASSHOSTCHECK}"`
@@ -278,20 +272,22 @@ function update_remote {
     writeln "Prepare ${type} server for copying files"
     local commands=`execute_remote_before_update "${int_sync_dir}"`
     verbose_verbose "${int_ssh} ${commands}"
-    $int_ssh $commands $redirect || error_exit "Failed to prerpare synchronization"
+    $int_ssh $commands $redirect 
+    on_error_exit "$?" "Failed to prepare '${hostname}' for update"
 
     writeln "Copy files to ${type} server [${int_sync_dir}]"
     verbose_verbose "$int_scp ${synchronize_file} ${hostname}:${int_sync_dir}/"
-    $int_scp "${synchronize_file}" "${DEVOPS_USER}@${hostname}:${int_sync_dir}/" && \
-        `exit_error "Failed to copy synchronization script"; exit 1`
+    $int_scp "${synchronize_file}" "${DEVOPS_USER}@${hostname}:${int_sync_dir}/"
+    on_error_exit "$?" "Failed to sync script to '${hostname}' for update"
     verbose_verbose "$int_scp -r ${mainsrc} ${hostname}:${int_sync_dir}"
-    $int_scp -r "${mainsrc}" "${DEVOPS_USER}@${hostname}:${int_sync_dir}" && \
-        `exit_error "Failed to copy application files script"; exit 1`
+    $int_scp -r "${mainsrc}" "${DEVOPS_USER}@${hostname}:${int_sync_dir}"
+    on_error_exit "$?" "Failed to sync sources to '${hostname}' for update"
 
     writeln "Synchronize files on ${type} server"
     commands=`execute_remote_after_update "${int_sync_dir}" "${type}"`
     verbose_verbose "${int_ssh} ${commands}"
-    $int_ssh $commands $redirect && `exit_error "Failed to execute synchronization"; exit 1`
+    $int_ssh $commands $redirect 
+    on_error_exit "$?" "Failed to aaply sync script at '${hostname}' for update"
 }
 
 function promote_code {

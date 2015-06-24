@@ -13,7 +13,7 @@ RESTART="${TRUE_VALUE}"
 
 APPLICATION_HOME="/var/www/gsa-ads"
 
-VARNISH_HOME="/etc/varnish"
+#VARNISH_HOME="/etc/varnish"
 #VARNISH_TEMPLATES_DIR="/opt/gsa-ads/templates/varnish"
 
 RSYNC_OPTIONS="--recursive --update --delete --exclude .git/"
@@ -41,10 +41,9 @@ function stop_application {
 }
 
 function start_application {
-
     if [ "${RESTART}" == "${TRUE_VALUE}" ]; then
         "${PLATFORM_HOME}/bin/start-services"
-        "${PLATFORM_HOME}/bin/verify-services" || error_exit "Service verification failed"
+        "${PLATFORM_HOME}/bin/verify-services"
     fi
 }
 
@@ -56,13 +55,13 @@ function synchronize_webserver {
     verbose "Synchronize web server"
     if [ "${TOUCH}" != "" ]; then
         verbose 'Touch remote files to ensure proper sync'
-        find ${VARNISH_HOME}/ -exec touch {} \;
+        #find ${VARNISH_HOME}/ -exec touch {} \;
         #find ${VARNISH_TEMPLATES_DIR}/ -exec touch {} \;
         find ${APPLICATION_HOME}/ -exec touch {} \;
     fi
-    verbose "Synchronize varnish files"
-    verbose rsync ${options} ${VERBOSE} ${SYNC_DIR}/varnish/ "${VARNISH_HOME}"
-    rsync ${options} ${VERBOSE} ${SYNC_DIR}/varnish/ "${VARNISH_HOME}"
+    #verbose "Synchronize varnish files"
+    #verbose rsync ${options} ${VERBOSE} ${SYNC_DIR}/varnish/ "${VARNISH_HOME}"
+    #rsync ${options} ${VERBOSE} ${SYNC_DIR}/varnish/ "${VARNISH_HOME}"
     #verbose rsync ${options} ${VERBOSE} ${SYNC_DIR}/templates/varnish/ "${VARNISH_TEMPLATES_DIR}"
     #rsync ${options} ${VERBOSE} ${SYNC_DIR}/templates/varnish/ "${VARNISH_TEMPLATES_DIR}"
 
@@ -70,8 +69,8 @@ function synchronize_webserver {
     verbose rsync ${options} ${VERBOSE} ${SYNC_DIR}/php/ "${APPLICATION_HOME}"
     rsync ${options} ${VERBOSE} ${SYNC_DIR}/php/ "${APPLICATION_HOME}"
 
-    
-
+    "${PLATFORM_HOME}/bin/install-php-composer"
+    "${PLATFORM_HOME}/bin/set-permissions"
     start_application
 }
 

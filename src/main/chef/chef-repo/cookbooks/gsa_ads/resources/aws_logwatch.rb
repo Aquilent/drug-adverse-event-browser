@@ -2,7 +2,8 @@
 # Cookbook Name:: gsa_ads
 # Resource:: aws_logwatch
 #
-# Copyright:: 2014-2015, Aquilent, Inc.
+# Copyright 2015, Aquilent, Inc.  All rights reserved.
+# See https://github.com/Aquilent/drug-adverse-event-browser/blob/test/LICENSE.txt
 
 actions :install
 default_action :install

@@ -2,9 +2,10 @@
 # Cookbook Name:: gsa_ads
 # Recipe:: bastion
 #
-# Copyright 2015, Aquilent, Inc.  2015, Aquilent, Inc.
+# Copyright 2015, Aquilent, Inc.  All rights reserved.
+# See https://github.com/Aquilent/drug-adverse-event-browser/blob/test/LICENSE.txt
 #
-# All rights reserved - Do Not Redistribute
+# 
 #
 
 

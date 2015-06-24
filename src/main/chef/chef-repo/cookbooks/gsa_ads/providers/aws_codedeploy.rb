@@ -2,7 +2,8 @@
 # Cookbook Name:: gsa_ads
 # Provider:: aws_codedeploy
 #
-# Copyright:: 2015, Aquilent, Inc
+# Copyright 2015, Aquilent, Inc.
+# See https://github.com/Aquilent/drug-adverse-event-browser/blob/test/LICENSE.txt
 #
 
 def whyrun_supported?

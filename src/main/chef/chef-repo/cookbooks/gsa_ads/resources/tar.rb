@@ -2,7 +2,8 @@
 # Cookbook Name:: gsa_ads
 # Resource:: tar
 #
-# Copyright:: 2015, Aquilent, Inc.
+# Copyright 2015, Aquilent, Inc.  All rights reserved.
+# See https://github.com/Aquilent/drug-adverse-event-browser/blob/test/LICENSE.txt
 
 actions :unpack
 

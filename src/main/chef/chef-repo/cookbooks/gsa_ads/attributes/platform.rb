@@ -2,9 +2,10 @@
 # Cookbook Name:: gsa_ads
 # Attributes:: platform
 #
-# Copyright 2014-2015, Aquilent, Inc.
+# Copyright 2015, Aquilent, Inc
+# See https://github.com/Aquilent/drug-adverse-event-browser/blob/test/LICENSE.txt
 #
-# All rights reserved - Do Not Redistribute
+# 
 #
 
 default['gsa_ads']['architecture'] = 'x86_64'

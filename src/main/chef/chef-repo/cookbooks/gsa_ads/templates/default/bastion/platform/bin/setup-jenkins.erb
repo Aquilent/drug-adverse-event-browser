@@ -1,0 +1,24 @@
+#!/bin/sh
+
+if [ "$EUID" -ne 0 ]
+  then echo "Please run as root"
+  exit
+fi
+
+if [ ! -d /home/jenkins/.ssh ]; then
+    mkdir -p /home/jenkins/.ssh
+    chown jenkins:jenkins /home/jenkins/
+    chmod 700 /home/jenkins/
+    chown jenkins:jenkins /home/jenkins/.ssh
+    chmod 700 /home/jenkins/.ssh
+    cp -f /home/ec2-user/.ssh/*.pem /home/jenkins/.ssh
+    cd /home/jenkins/.ssh
+    chown jenkins:jenkins *.pem
+    chmod 400 *.pem
+    
+    echo "Verifying hosts"
+    sudo -u jenkins /opt/gsa-ads/bin/setup-jenkins-credentials
+    echo "Setup complete"
+else
+    echo "Already setup"
+fi

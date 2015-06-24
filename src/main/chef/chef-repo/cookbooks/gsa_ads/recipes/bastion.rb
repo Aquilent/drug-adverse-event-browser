@@ -2,7 +2,7 @@
 # Cookbook Name:: gsa_ads
 # Recipe:: bastion
 #
-# Copyright 2015, Aquilent, Inc.
+# Copyright 2015, Aquilent, Inc.  2015, Aquilent, Inc.
 #
 # All rights reserved - Do Not Redistribute
 #
@@ -33,7 +33,7 @@ end
 package "git" do
 end
 
-[ "manage-code", "synchronize", "setup-jenkins", "set-up-jenkins-credentials" ].each do |name|
+[ "manage-code", "synchronize", "setup-jenkins", "setup-jenkins-credentials" ].each do |name|
   gsa_ads_platform "#{name}" do
       template_source_dir "bastion/platform/bin"
       action :install_binary

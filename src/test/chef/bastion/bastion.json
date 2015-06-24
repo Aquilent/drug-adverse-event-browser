@@ -4,7 +4,7 @@
             "endpoint": "http://192.168.10.2/"
         },
         "executor" : {
-          "timeout": 120
+          "timeout": 300
         }
     },
    "gsa_ads": {
@@ -28,7 +28,8 @@
           }
       },
       "bastion": {
-          "int_web_hostname": "192.168.10.3"
+          "int_web_hostname": "192.168.10.3",
+          "devops_user": "vagrant"
       }
    },
    "run_list": [

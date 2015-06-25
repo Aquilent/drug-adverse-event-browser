@@ -15,12 +15,24 @@
 
 include_recipe "rsync"
 
+
+#------------------------------------------------------------------------------
+#             Install PHP (for unit testing)
+#------------------------------------------------------------------------------
+
+gsa_ads_php "bastion" do
+    packages %w[php-mbstring php-gd php-pdo php-dom php-mysql php-devel 
+        php-openssl php-mcrypt php-tokenizer]
+    pear_channels %w[pear.drush.org]
+    action :install
+end
+
 #------------------------------------------------------------------------------
 #             Install Apache
 #------------------------------------------------------------------------------
 
 gsa_ads_httpd "bastion" do
-    #modules_default %w[mod_auth_basic]
+    modules_default %w[dir]
     modules_no_config %w[proxy]
     modules_custom_config %w[proxy_http]
     action :install
@@ -34,7 +46,8 @@ end
 package "git" do
 end
 
-[ "manage-code", "synchronize", "setup-jenkins", "setup-jenkins-credentials" ].each do |name|
+[ "manage-code", "synchronize", "setup-jenkins", "setup-jenkins-credentials"
+].each do |name|
   gsa_ads_platform "#{name}" do
       template_source_dir "bastion/platform/bin"
       action :install_binary
@@ -58,8 +71,9 @@ node.default['jenkins']['master']['install_method'] = 'package'
 include_recipe "jenkins::java"
 include_recipe "jenkins::master"
 
-#jenkins_user "jenkins-admin" do
-#end
+jenkins_user "jenkins-admin" do
+    password "ChangeMeNow"
+end
 
 %w[int test prod].each do |env|
 
@@ -74,3 +88,4 @@ include_recipe "jenkins::master"
   end
 
 end  
+

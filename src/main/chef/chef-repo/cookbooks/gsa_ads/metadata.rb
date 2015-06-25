@@ -20,7 +20,6 @@ depends "yum-mysql-community"
 
 recipe 'gsa_ads::platform', 'Install /op/gsa-ads'
 recipe 'gsa_ads::varnish', 'Install a standard Varnish webserver'
-recipe 'gsa_ads::aws_codedeploy', 'Install AWS CodeDeploy agent'
 recipe 'gsa_ads::aws_logwatch', 'Install AWS CloudWatch aws_logwatch service and configuration'
 recipe 'gsa_ads::bastion', 'Install bastion server as a proxy for shared services'
 

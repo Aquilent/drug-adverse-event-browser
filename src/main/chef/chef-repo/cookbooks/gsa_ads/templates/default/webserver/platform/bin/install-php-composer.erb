@@ -2,13 +2,11 @@
 
 echo "Installing PHP composer"
 application_home="<%= node['gsa_ads']['webserver']['application_home'] %>"
+log=`mktemp`
 
-curl -sS https://getcomposer.org/installer | php -- --install-dir="/tmp"
+curl -sS https://getcomposer.org/installer | php -- --install-dir="/tmp" &>> $log
 pushd "${application_home}"
-if [ !d /var/log/gsa-ads/ ]; then
-    mkdir -p /var/log/gsa-ads/
-fi
-php "/tmp/composer.phar" install 2>&1 > /var/log/gsa-ads/install-composer.log
+php "/tmp/composer.phar" install &> $log
 popd
 rm -f "/tmp/composer.phar"
 

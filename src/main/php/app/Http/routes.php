@@ -11,11 +11,6 @@
 |
 */
 
-Route::get('/', function()
-{
-    return view('index');
-});
-
 Route::get('instructions', function()
 {
     return view('instructions');
@@ -29,11 +24,6 @@ Route::get('disclaimers', function()
 Route::get('interactions', function()
 {
     return view('interactions');
-});
-
-Route::get('outcomes', function()
-{
-    return view('outcomes');
 });
 
 Route::get('/', function()

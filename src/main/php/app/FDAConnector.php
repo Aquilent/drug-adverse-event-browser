@@ -50,7 +50,7 @@ class FDAConnector {
   }
 
   protected function formatUrl($query) {
-    $url = $this->baseUri . $this->drugUrl . '?';
+    $url = $this->baseUri . $this->drugUrl . '?' . $this->getAPIKey();
     foreach($query AS $param => $value) {
       $url .= '&' . $param . '=' . $value;
     }
@@ -59,5 +59,9 @@ class FDAConnector {
 
   protected function formatQueryString($string) {
     return '"' . str_replace(' ', '+', strtoupper($string)) . '"';
+  }
+
+  protected function getAPIKey() {
+    if ($key = env('OPENFDA_API_KEY')) return 'api_key=' . $key;
   }
 }

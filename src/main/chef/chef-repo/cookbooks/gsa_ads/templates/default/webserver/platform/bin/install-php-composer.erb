@@ -1,20 +1,13 @@
 #!/bin/sh
 
-status_file="/opt/gsa-ads/conf/composer.installed"
+echo "Installing PHP composer"
+application_home="<%= node['gsa_ads']['webserver']['application_home'] %>"
+log=`mktemp`
 
-if [ ! -f "${status_file}" ]; then
-    echo "Installing PHP composer"
-    application_home="<%= node['gsa_ads']['webserver']['application_home'] %>"
+curl -sS https://getcomposer.org/installer | php -- --install-dir="/tmp" &>> $log
+pushd "${application_home}"
+php "/tmp/composer.phar" install &> $log
+popd
+rm -f "/tmp/composer.phar"
 
-    curl -sS https://getcomposer.org/installer | php -- --install-dir="/tmp"
-    pushd "${application_home}"
-    php "/tmp/composer.phar" install
-    popd
-    rm -f "/tmp/composer.phar"
-
-    echo "installed" > "${status_file}"
-    chmod 777 "${status_file}"
-    echo "Done"
-else
-    echo "PGHP Composer already installed"
-fi
+echo "Done"

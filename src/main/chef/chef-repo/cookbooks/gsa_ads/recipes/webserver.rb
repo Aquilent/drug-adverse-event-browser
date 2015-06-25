@@ -2,9 +2,10 @@
 # Cookbook Name:: gsa_ads
 # Recipe:: webserver
 #
-# Copyright 2014-2015, Aquilent, Inc.
+# Copyright 2015, Aquilent, Inc
+# See https://github.com/Aquilent/drug-adverse-event-browser/blob/test/LICENSE.txt
 #
-# All rights reserved - Do Not Redistribute
+# 
 #
 
 require "rubygems"

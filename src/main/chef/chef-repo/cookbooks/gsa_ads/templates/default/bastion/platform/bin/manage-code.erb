@@ -28,8 +28,11 @@ DEVOPS_USER=`whoami`
 # -- other local variables
 BRANCH_PATH=
 LOCAL_DIR=
+LOCAL_UPDATE_DONE=
 FORCED_CHECKOUT=
 
+TEST_ACTION=
+PROMOTE_ACTION=
 
 function usage {
     local message="$1"
@@ -42,15 +45,14 @@ function usage {
     fi
 
     cat <<EOF
-Usage: SCRIPT_NAME [OPTIONS] promote
+Usage: SCRIPT_NAME [OPTIONS] [promote | test]
 
 promote
-    Promote code from the installed Source Code Control (SCC) system (e.g. Subversion) 
-    to the Development (Dev) environment. Will check out the designated code from the 
-    SCC system to a local directory, copy the necessary files to the Drupal app server, 
-    and restart the services on the web and app servers to affect the change.
+    Promote code from the GitHub to a designated environment. Will check out the 
+    designated code to a local directory, copy the necessary files to the web server, 
+    and restart the services on the web servers to affect the change.
     Note that on an initial promotion all code will be checked-out to the local directory,
-    but on subsequent promotions, only the changed code will be pulled from the SCC system.
+    but on subsequent promotions, only the changed code will be pulled from GitHub.
     To force all code to be checked out use the --fresh option.
 
 Options:
@@ -79,11 +81,15 @@ EOF
 
 function set_non_option_parameter {
     local value="$1"
-    if [ "${ACTION}" == "" ]; then
-        ACTION="${value}"
-    else
-        usage "Unknown argument '${value}'" 
-    fi 
+
+    case "${value}" in
+        promote|test)    ;;
+        *)               usage "Unknown action '${value}'" ;;
+    esac
+    if [ "${ACTION}" != "" ]; then
+        usage "Action already set to '${ACTION}'"
+    fi
+    ACTION="${value}"
 }
 
 function get_parameters {
@@ -99,6 +105,7 @@ function get_parameters {
           --no-restart)         RESTART="${FALSE_VALUE}" ;;
           --no-update)          RUN_UPDATE="${FALSE_VALUE}" ;;
           --quiet|-q)           set__quiet ;;
+          --tag*|-t*)           BUILD_TAG=`get_parameter "(--tag|-t)" "$1"` ;;
           --verbose|-v)         set_verbose ;;
           --web-host*)          WEB_HOSTNAME=`get_parameter "--web-host" "$1"` ;;
           *)                    set_non_option_parameter "${1}" ;;
@@ -194,7 +201,7 @@ function copy_sources {
     ssh-add -t 30 "/home/${GIT_USER}/.ssh/${GIT_CERT}"
     git clone --branch "${BRANCH_NAME}" "ssh://git@github.com/${GIT_OWNER}/${GIT_REPO}.git"
     kill_ssh_agent
-    verbose "Preparing to copy sources to "'${to_dir}'""
+    verbose "Preparing to copy sources to '${to_dir}'"
     mkdir -p "${dir}/web"
     if [ -d "${dir}/${GIT_REPO}/src/main/php" ]; then
       rsync $rsync_options "${dir}/${GIT_REPO}/src/main/php" "${to_dir}/web/"
@@ -206,15 +213,17 @@ function copy_sources {
     else 
         writeln "No varnish sources found"
     fi
-    mkdir -p "${dir}/app"
+    #mkdir -p "${dir}/app"
     popd > /dev/null 2>&1
     rm -rf "${dir}"
 }
 
 
 function update_local {
-    mkdir -p "${LOCAL_DIR}"
-    copy_sources "${LOCAL_DIR}"
+    local action="$1"
+    WORK_DIR="${LOCAL_DIR}/${action}"
+    mkdir -p "${WORK_DIR}"
+    copy_sources "${WORK_DIR}"
 }
 
 
@@ -246,36 +255,30 @@ function execute_remote_after_update {
 }
 
 function update_remote {
-    local type="$1"
-    local certificate=
-    local hostname=
+    local certificate="${WEB_CERTIFICATE}"
+    local hostname="${WEB_HOSTNAME}"
     
-    case  "${type}" in
-        "web") certificate="${WEB_CERTIFICATE}"; hostname="${WEB_HOSTNAME}" ;;
-        "app") certificate="${APP_CERTIFICATE}"; hostname="${APP_HOSTNAME}" ;;
-        *)     exit_error "Unknown server type: Cannot update a remote ${type} server." ;;
-    esac
-    writeln "Updating '${type}' server at '${hostname}' as '${DEVOPS_USER}' from '${HOME}'"
+    writeln "Updating 'web' server at '${hostname}' as '${DEVOPS_USER}' from '${HOME}'"
 
     local int_ssh=`ssh_command "${certificate}" "${DEVOPS_USER}@${hostname}" "" \\
         "${SSH_BYPASSHOSTCHECK}"`
     local int_sync_dir="/tmp/gsa-ads/promote"
     local int_scp=`scp_command "${certificate}" "" "${SSH_BYPASSHOSTCHECK}"`
     local synchronize_file="/opt/gsa-ads/bin/synchronize"
-    local mainsrc="${LOCAL_DIR}/${type}"
+    local mainsrc="${WORK_DIR}/web"
     local redirect=
 
     if [ "${QUIET}" != "" ]; then 
         redirect=' 2>&1 > /dev/null'
     fi
 
-    writeln "Prepare ${type} server for copying files"
+    writeln "Prepare web server for copying files"
     local commands=`execute_remote_before_update "${int_sync_dir}"`
     verbose_verbose "${int_ssh} ${commands}"
     $int_ssh $commands $redirect 
     on_error_exit "$?" "Failed to prepare '${hostname}' for update"
 
-    writeln "Copy files to ${type} server [${int_sync_dir}]"
+    writeln "Copy files to web server [${int_sync_dir}]"
     verbose_verbose "$int_scp ${synchronize_file} ${hostname}:${int_sync_dir}/"
     $int_scp "${synchronize_file}" "${DEVOPS_USER}@${hostname}:${int_sync_dir}/"
     on_error_exit "$?" "Failed to sync script to '${hostname}' for update"
@@ -283,23 +286,73 @@ function update_remote {
     $int_scp -r "${mainsrc}" "${DEVOPS_USER}@${hostname}:${int_sync_dir}"
     on_error_exit "$?" "Failed to sync sources to '${hostname}' for update"
 
-    writeln "Synchronize files on ${type} server"
-    commands=`execute_remote_after_update "${int_sync_dir}" "${type}"`
+    writeln "Synchronize files on web server"
+    commands=`execute_remote_after_update "${int_sync_dir}" "web"`
     verbose_verbose "${int_ssh} ${commands}"
     $int_ssh $commands $redirect 
     on_error_exit "$?" "Failed to aaply sync script at '${hostname}' for update"
 }
 
 function promote_code {
-    update_local
-    update_remote "web"
+    update_local "promote"
+    update_remote
     verbose "Code promoted"
+}
+
+
+function install_php_composer {
+    local application_home="$1"
+    local log=`mktemp`
+
+    writeln "(Re)install PHP composer into [${application_home}]"
+    curl -sS https://getcomposer.org/installer | php -- --install-dir="/tmp" &> $log
+    pushd "${application_home}" > /dev/null 2>&1
+    php "/tmp/composer.phar" install &> $log
+    popd > /dev/null 2>&1
+    rm -f "/tmp/composer.phar"
+    rm -f $log
+}
+
+function add_phpunit_output {
+    local directory="$1"
+    local output_type="$2"
+    local extension="$3"
+    local output_home="/var/lib/jenkins/jobs/deploy-to-${ENVIRONMENT}/workspace/${directory}"
+    local output_file="${output_home}/${BUILD_TAG}.${extension}"
+    mkdir -p "${output_home}"
+    chmod 775 "${output_home}"
+    writeln "Storing test results results in '${output_file}'"
+    echo "${output_type} ${output_file}"
+}
+
+function test_code {
+    update_local "test"
+    local test_output_home=""
+    local application_home="${WORK_DIR}/web/php"
+    local vendor_home="${application_home}/vendor"
+    local phpunit_path="phpunit/phpunit/phpunit"
+    local inline="${vendor_home}/${phpunit_path} --bootstrap ${vendor_home}/autoload.php"
+    local output_file=""
+
+    writeln "Running PHP unit tests"
+    if [ "${BUILD_TAG}" != "" ]; then
+        inline="${inline} "`add_phpunit_output 'test_results' '--log-junit' 'xml'`
+    else 
+        writeln "No BUILD_TAG found. Writing results to stdout"
+    fi
+    inline="${inline} ${application_home}/tests"
+
+    install_php_composer "${application_home}"
+    verbose "About to execute [${inline}]"
+    $inline
 }
 
 initialize "$@"
 
+
 case "${ACTION}" in
-    promote)      promote_code ;;
-    *)            usage "Unknown action '${ACTION}'" ;;
+    promote)        test_code; promote_code ;;
+    test)           test_code ;;
+    *)              usage "No action was specified; Please specifiy 'promote' or 'test' action." ;;
 esac
 

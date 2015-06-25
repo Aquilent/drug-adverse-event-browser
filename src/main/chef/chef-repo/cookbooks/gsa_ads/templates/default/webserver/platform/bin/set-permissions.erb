@@ -24,13 +24,17 @@ find "${application_home}" -type f -exec chmod u=rw,g=r,o= '{}' \;
 chmod 700 "${application_home}/storage/logs"
 #chmod 700 "${application_home}/storage/views"
 
-# enabled=
-# if [ -f /usr/sbin/sestatus ] || [-f /usr/bin/sestatus ]; then
-#     enabled=`sestatus | awk  -F ":" ' /SELinux status:/ { gsub(" |\t","",$2); print $2 }'`
-#     if [ "$enabled" != "" ];  then
+enabled=
+if [ -f /usr/sbin/sestatus ] || [-f /usr/bin/sestatus ]; then
+     enabled=`sestatus | awk  -F ":" ' /SELinux status:/ { gsub(" |\t","",$2); print $2 }'`
+     if [ "$enabled" == "" ];  then
+         verbose "INFO: SELinux enabled. Disabling"
+         sesetenforce 0
+#     else 
+         verbose "INFO: SELinux not enabled. Keep disabled"
 #         verbose "INFO: SELinux not enabled. Enabling"
 #         sesetenforce 1
-#     fi
+     fi
 #        verbose "Setting file ${application_home} SELinux access rules"
 #        semanage fcontext -a -t httpd_sys_content_t "${application_home}(/.*)?"
 #         semanage fcontext -a -t httpd_sys_rw_content_t "${application_home}/storage(/.*)?"
@@ -41,4 +45,4 @@ chmod 700 "${application_home}/storage/logs"
 #     fi
 # else 
 #     verbose "WARNING: SELinux NOT installed"
-# fi  
+fi  

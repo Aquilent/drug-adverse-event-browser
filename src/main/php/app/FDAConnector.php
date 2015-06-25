@@ -14,23 +14,34 @@ class FDAConnector {
     $this->client = new Client(['base_uri' => $this->baseUri]);
   }
 
-  public function getDrugReactions($drug) {
+  public function getDrugReactions($drugOne, $drugTwo = null) {
     return $this->sendQuery([
-      'search' => 'patient.drug.medicinalproduct.exact:' . $this->formatQueryString($drug),
+      'search' => $this->buildSearchTerm($drugOne, $drugTwo),
       'count'  => 'patient.reaction.reactionmeddrapt.exact'
     ]);
   }
 
-  public function getDrugReactionInteractions($drug, $reaction) {
+  public function getDrugReactionInteractions($reaction, $drugOne, $drugTwo = null) {
     $interactions =  $this->sendQuery([
-      'search' => '(patient.drug.medicinalproduct.exact:' . $this->formatQueryString($drug) . '+AND+patient.reaction.reactionmeddrapt.exact:' . $this->formatQueryString($reaction) . ')',
+      'search' => $this->buildSearchTerm($drugOne, $drugTwo, $reaction),
       'count'  => 'patient.drug.medicinalproduct.exact',
     ]);
 
-    // First interaction will always be the passed drug
+    // First interaction will always be drugOne
     array_shift($interactions);
 
+    // Second interaction will be drugTwo when passed
+    if ($drugTwo) array_shift($interactions);
+
     return $interactions;
+  }
+
+  protected function buildSearchTerm($drugOne, $drugTwo = null , $reaction = null) {
+    $term = 'patient.drug.medicinalproduct.exact:' . $this->formatQueryString($drugOne);
+    if ($drugTwo) $term .= '+AND+patient.drug.medicinalproduct.exact:' . $this->formatQueryString($drugTwo); 
+    if ($reaction) $term .= '+AND+patient.reaction.reactionmeddrapt.exact:' . $this->formatQueryString($reaction);
+
+    return '(' . $term . ')';
   }
   
   protected function sendQuery($query) {

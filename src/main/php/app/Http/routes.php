@@ -33,12 +33,12 @@ Route::get('/', function()
 
 Route::post('/', 'ReactionController@getReactions');
 
-Route::get('/{drug}', [
+Route::get('/{drugOne}/{drugTwo?}', [
   'as'   => 'listReactions',
   'uses' => 'ReactionController@listReactions'
 ]);
 
-Route::get('/{drug}/{reaction}', [
+Route::get('/r/{reaction}/{drugOne}/{drugTwo?}', [
   'as'   => 'listInteractions',
   'uses' => 'ReactionController@listInteractions'
 ]);

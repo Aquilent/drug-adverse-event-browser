@@ -33,7 +33,7 @@ class ReactionController extends Controller {
 	 */
 	public function getReactions(Request $request)
 	{
-		return redirect()->route('listReactions', [ trim($request->drug) ]);
+		return redirect()->route('listReactions', [ trim($request->drugOne), trim($request->drugTwo) ]);
 	}
 
 	/**
@@ -41,12 +41,12 @@ class ReactionController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function listReactions(Request $request, $drug)
+	public function listReactions(Request $request, $drugOne, $drugTwo = null)
 	{
 		$connector = new FDAConnector();
-		$reactions = $this->limitResults($connector->getDrugReactions($drug));
+		$reactions = $this->limitResults($connector->getDrugReactions($drugOne, $drugTwo));
 		
-		return view('reactions', compact('drug', 'reactions'));
+		return view('reactions', compact('drugOne', 'drugTwo', 'reactions'));
 	}
 
 	/**
@@ -54,12 +54,12 @@ class ReactionController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function listInteractions(Request $request, $drug, $reaction)
+	public function listInteractions(Request $request, $reaction, $drugOne, $drugTwo = null)
 	{
 		$connector = new FDAConnector();
-		$interactions = $this->limitResults($connector->getDrugReactionInteractions($drug, $reaction));
+		$interactions = $this->limitResults($connector->getDrugReactionInteractions($reaction, $drugOne, $drugTwo));
 		
-		return view('interactions', compact('drug', 'reaction', 'interactions'));
+		return view('interactions', compact('drugOne', 'drugTwo', 'reaction', 'interactions'));
 	} 
 
 	/**

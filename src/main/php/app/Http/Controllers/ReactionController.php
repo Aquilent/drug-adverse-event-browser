@@ -33,7 +33,7 @@ class ReactionController extends Controller {
 	 */
 	public function getReactions(Request $request)
 	{
-		return redirect()->route('listReactions', [ format_title($request->drug) ]);
+		return redirect()->route('listReactions', [ $request->drug ]);
 	}
 
 	/**

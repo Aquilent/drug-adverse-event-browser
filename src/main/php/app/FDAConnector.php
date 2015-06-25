@@ -16,16 +16,21 @@ class FDAConnector {
 
   public function getDrugReactions($drug) {
     return $this->sendQuery([
-      'search' => 'patient.drug.openfda.brand_name:' . $this->formatQueryString($drug),
+      'search' => 'patient.drug.medicinalproduct.exact:' . $this->formatQueryString($drug),
       'count'  => 'patient.reaction.reactionmeddrapt.exact'
     ]);
   }
 
   public function getDrugReactionInteractions($drug, $reaction) {
-    return $this->sendQuery([
-      'search' => '(patient.drug.openfda.brand_name:' . $this->formatQueryString($drug) . '+AND+patient.reaction.reactionmeddrapt:' . $this->formatQueryString($reaction) . ')',
-      'count'  => 'patient.drug.openfda.brand_name.exact',
+    $interactions =  $this->sendQuery([
+      'search' => '(patient.drug.medicinalproduct.exact:' . $this->formatQueryString($drug) . '+AND+patient.reaction.reactionmeddrapt.exact:' . $this->formatQueryString($reaction) . ')',
+      'count'  => 'patient.drug.medicinalproduct.exact',
     ]);
+
+    // First interaction will always be the passed drug
+    array_shift($interactions);
+
+    return $interactions;
   }
   
   protected function sendQuery($query) {

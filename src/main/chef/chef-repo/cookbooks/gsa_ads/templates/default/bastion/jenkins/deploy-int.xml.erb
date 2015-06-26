@@ -2,6 +2,7 @@
 <project>
   <actions/>
   <description></description>
+  <displayName>Deploy to Integration</displayName>
   <logRotator>
     <daysToKeep>7</daysToKeep>
     <numToKeep>-1</numToKeep>
@@ -15,14 +16,24 @@
   <disabled>false</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
-  <triggers class="vector"/>
+  <triggers>
+    <hudson.triggers.TimerTrigger>
+      <spec>H 8-18/1 * * 1-5</spec>
+    </hudson.triggers.TimerTrigger>
+  </triggers>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>/opt/gsa-ads/bin/manage-code promote --verbose --environment=int
+      <command>/opt/gsa-ads/bin/manage-code promote --verbose --environment=int --no-update --tag="${BUILD_TAG}"
 </command>
     </hudson.tasks.Shell>
-  </builders>
-  <publishers/>
+  <publishers>
+    <hudson.tasks.junit.JUnitResultArchiver plugin="junit@1.2-beta-4">
+      <testResults>**/test_results/*.xml</testResults>
+      <keepLongStdio>false</keepLongStdio>
+      <testDataPublishers/>
+      <healthScaleFactor>1.0</healthScaleFactor>
+    </hudson.tasks.junit.JUnitResultArchiver>
+  </publishers>
   <buildWrappers/>
 </project>

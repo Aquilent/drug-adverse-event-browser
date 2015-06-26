@@ -1,10 +1,11 @@
 #
 # Cookbook Name:: gsa_ads
-# Recipe:: varnish
+# Recipe:: webserver
 #
-# Copyright 2014-2015, Aquilent, Inc.
+# Copyright 2015, Aquilent, Inc
+# See https://github.com/Aquilent/drug-adverse-event-browser/blob/test/LICENSE.txt
 #
-# All rights reserved - Do Not Redistribute
+# 
 #
 
 require "rubygems"
@@ -21,8 +22,8 @@ include_recipe "rsync"
 #------------------------------------------------------------------------------
 
 gsa_ads_php "webserver" do
-    packages %w[php-mbstring php-gd php-pdo php-dom php-mysql php-devel]
-    #pear_packages %w[uploadprogress]
+    packages %w[php-mbstring php-gd php-pdo php-dom php-mysql php-devel 
+        php-openssl php-mcrypt php-tokenizer]
     pear_channels %w[pear.drush.org]
     action :install
 end
@@ -49,19 +50,15 @@ gsa_ads_httpd "webserver" do
     action :install
 end
 
-template "#{APPLICATION_HOME}/public/index.php" do
-    source "webserver/index.php.erb"
-    owner node['apache']['user']
-    group node['apache']['group']
-    mode '0755'
-end
-
-[ "start-services", "stop-services", "verify-services", "set-permissions"].each do |name|
+[ "start-services", "stop-services", "verify-services", "set-permissions",
+  "install-php-composer"
+].each do |name|
   gsa_ads_platform "#{name}" do
       template_source_dir "webserver/platform/bin"
       action :install_binary
   end
 end
+
 
 
 #------------------------------------------------------------------------------

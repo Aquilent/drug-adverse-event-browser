@@ -7,7 +7,7 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import NoAlertPresentException
 import unittest, time, re
 
-class VerifyTextInstructionsDisclaimerSearch(unittest.TestCase):
+class HeaderAndFooterNavigationLinks(unittest.TestCase):
     def setUp(self):
         self.driver = webdriver.Firefox()
         self.driver.implicitly_wait(30)
@@ -15,28 +15,18 @@ class VerifyTextInstructionsDisclaimerSearch(unittest.TestCase):
         self.verificationErrors = []
         self.accept_next_alert = True
     
-    def test_verify_text_instructions_disclaimer_search(self):
+    def test_header_and_footer_navigation_links(self):
         driver = self.driver
         driver.get(self.base_url + "/")
-        driver.find_element_by_link_text("About the Tool").click()
-        try: self.assertEqual("Drug Reaction Finder", driver.title)
-        except AssertionError as e: self.verificationErrors.append(str(e))
-        try: self.assertEqual("About this Tool", driver.find_element_by_css_selector("h2").text)
-        except AssertionError as e: self.verificationErrors.append(str(e))
         driver.find_element_by_link_text("Disclaimers").click()
-        try: self.assertEqual("Drug Reaction Finder", driver.title)
-        except AssertionError as e: self.verificationErrors.append(str(e))
-        try: self.assertEqual("Disclaimers", driver.find_element_by_css_selector("h2").text)
-        except AssertionError as e: self.verificationErrors.append(str(e))
+        driver.find_element_by_link_text("About the Tool").click()
+        driver.find_element_by_xpath("(//a[contains(text(),'About the Tool')])[2]").click()
+        driver.find_element_by_xpath("(//a[contains(text(),'Disclaimers')])[2]").click()
         driver.find_element_by_link_text("Search").click()
-        try: self.assertEqual("Drug Reaction Finder", driver.find_element_by_css_selector("h1").text)
-        except AssertionError as e: self.verificationErrors.append(str(e))
-        try: self.assertEqual("Enter a drug name to start your search", driver.find_element_by_css_selector("label").text)
-        except AssertionError as e: self.verificationErrors.append(str(e))
-        try: self.assertEqual("", driver.find_element_by_id("drugOne").text)
-        except AssertionError as e: self.verificationErrors.append(str(e))
-        try: self.assertEqual("", driver.find_element_by_id("drugTwo").text)
-        except AssertionError as e: self.verificationErrors.append(str(e))
+        driver.find_element_by_css_selector("img[alt=\"openFDA logo\"]").click()
+        driver.back()
+        driver.find_element_by_css_selector("a[title=\"Aquilent Web Site\"] > img[alt=\"Aquilent logo\"]").click()
+        driver.back()
     
     def is_element_present(self, how, what):
         try: self.driver.find_element(by=how, value=what)

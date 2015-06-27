@@ -7,7 +7,7 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import NoAlertPresentException
 import unittest, time, re
 
-class VerifyTextSearchResults(unittest.TestCase):
+class SingleDrugSearchShowAllResults(unittest.TestCase):
     def setUp(self):
         self.driver = webdriver.Firefox()
         self.driver.implicitly_wait(30)
@@ -15,22 +15,16 @@ class VerifyTextSearchResults(unittest.TestCase):
         self.verificationErrors = []
         self.accept_next_alert = True
     
-    def test_verify_text_search_results(self):
+    def test_single_drug_search_show_all_results(self):
         driver = self.driver
         driver.get(self.base_url + "/")
         driver.find_element_by_id("drugOne").clear()
-        driver.find_element_by_id("drugOne").send_keys("Motrin")
-        driver.find_element_by_xpath("//button[@type='submit']").click()
-        # ERROR: Caught exception [ERROR: Unsupported command [getTable | //table.1.0 | ]]
-        driver.find_element_by_id("drugOne").clear()
         driver.find_element_by_id("drugOne").send_keys("Tylenol")
         driver.find_element_by_xpath("//button[@type='submit']").click()
-        # ERROR: Caught exception [ERROR: Unsupported command [getTable | //table.1.0 | ]]
-        driver.find_element_by_id("drugOne").clear()
-        driver.find_element_by_id("drugOne").send_keys("Codeine")
-        driver.find_element_by_xpath("//button[@type='submit']").click()
-        # ERROR: Caught exception [ERROR: Unsupported command [getTable | //table.3.0 | ]]
-        driver.find_element_by_css_selector("img[alt=\"Aquilent logo\"]").click()
+        driver.find_element_by_xpath("(//button[@type='button'])[2]").click()
+        driver.find_element_by_xpath("(//button[@type='button'])[2]").click()
+        driver.find_element_by_xpath("(//button[@type='button'])[2]").click()
+        driver.find_element_by_xpath("(//button[@type='button'])[2]").click()
     
     def is_element_present(self, how, what):
         try: self.driver.find_element(by=how, value=what)

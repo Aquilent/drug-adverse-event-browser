@@ -11,7 +11,7 @@ class VerifyTextInstructionsDisclaimerSearch(unittest.TestCase):
     def setUp(self):
         self.driver = webdriver.Firefox()
         self.driver.implicitly_wait(30)
-        self.base_url = "http://gsa-ads-2-elbwebex-1l78v7v6k7szj-2091903140.us-east-1.elb.amazonaws.com/"
+        self.base_url = "http://gsa-ads-2-elbwebex-15wqptfab7c7o-1537924130.us-east-1.elb.amazonaws.com/"
         self.verificationErrors = []
         self.accept_next_alert = True
     

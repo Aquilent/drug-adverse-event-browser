@@ -1,0 +1,126 @@
+#!/bin/bash
+
+PLATFORM_HOME=/opt/gsa-ads
+. "${PLATFORM_HOME}/bin/functions"
+
+CONFIG_FILE="${PLATFORM_HOME}/conf/manage.conf"
+TEST_SCRIPT_PATH="src/test/selenium/test-scripts"
+
+function get_parameters {
+    while test $# -gt 0; do
+        case $1 in
+          --branch*|-b*)        BRANCH=`get_parameter "(-b|--branch)" "$1"` ;;
+          --config-file*|-c*)   CONFIG_FILE=`get_parameter "(-c|--config-file)" "$1"` ;;
+          --environment*|-e*)   ENVIRONMENT=`get_parameter "(-e|--environment)" "$1"` ;;
+          --quiet|-q)           set__quiet ;;
+          --verbose|-v)         set_verbose ;;
+          --workspace*|-w*)     WORKSPACE=`get_parameter "(--workspace|-w)" "$1"` ;;
+          *)                    exit_error "Unknown argument '$1'" ;;
+        esac
+        shift
+    done
+}
+
+function get_properties {
+    local current_user=`whoami`
+
+    if [ "${CONFIG_FILE}" == "" ];  then
+      exit_error "No configuration file specified."
+    fi  
+    if [ "${ENVIRONMENT}" == "" ];  then
+      exit_error "No environment specified."
+    fi  
+    case $ENVIRONMENT in
+        int|test|prod)    ;;
+        *)                exit_error "Unknown environment '${ENVIRONMENT}'." ;;
+    esac
+    local ENV=`echo "${ENVIRONMENT}" | awk '{print toupper($1);}'`
+
+    URL=`get_property "${ENV}_URL"`
+    if [ "${URL}" == "" ];  then
+       exit_error "No URL specified for environment '${ENV}'."
+    fi  
+
+    GIT_OWNER=`get_property "GIT_OWNER"`
+    GIT_REPO=`get_property "GIT_REPO"`
+    GIT_CERT=`get_property "GIT_CERT"`
+    GIT_USER=`get_property "GIT_USER" "${current_user}"`
+    if [ "${BRANCH_NAME}" == "" ]; then
+        BRANCH_NAME=`get_property "${ENV}_BRANCH_NAME" "master"`
+    fi
+
+    RESULTS_DIR="${WORKSPACE}/test-reports"
+}
+
+function initialize {
+    get_parameters "$@"
+    get_properties
+}
+
+function setup_ssh_agent {
+    eval `ssh-agent -s`> /dev/null
+}
+
+function kill_ssh_agent {
+    if [ ${SSH_AGENT_PID+1} == 1 ]; then
+       ssh-add -D
+       ssh-agent -k > /dev/null 2>&1
+       unset SSH_AGENT_PID
+       unset SSH_AUTH_SOCK
+    fi
+}
+
+function get_test_scripts {
+    local dir=`mktemp -d`
+    local to_dir=`mktemp -d`
+    writeln "==== Created temporary test directory ${to_dir} ===="
+    writeln "Getting ${BRANCH_NAME}/${TEST_SCRIPT_PATH} ${GIT_OWNER}/${GIT_REPO} using ${GIT_CERT}"
+   
+    cd "${dir}" &> /dev/null
+    setup_ssh_agent
+    ssh-add -t 30 "/home/${GIT_USER}/.ssh/${GIT_CERT}"
+    git clone --branch "${BRANCH_NAME}" "ssh://git@github.com/${GIT_OWNER}/${GIT_REPO}.git"
+    kill_ssh_agent
+    if [ -d "./${GIT_REPO}/${TEST_SCRIPT_PATH}" ]; then
+        rm -rf "${to_dir}" # want to replace the directory
+        mv "${GIT_REPO}/${TEST_SCRIPT_PATH}" "${to_dir}"
+    else
+        writeln "===== WARNING: NO SELENIUM TEST SCRIPTS FOUND ====="
+    fi
+    echo "${to_dir}"
+}
+
+function prepare_test {
+    # The patterns are used to:
+    #     1. Turn script into python script
+    #     2. Ensure the PhantomJS web driver is used (need to be headless)
+    #     3. The xmlrunner class is imported (for XML-based JUNIT report)
+    #     4. Use the proper environment URL
+    #     5. Use the xmlrunner to generate XML-based JUNIT report (for Jenkins)
+    sed -e '1s|^|#!/usr/bin/python\n|' \
+        -e 's|self.driver = webdriver.*()|self.driver = webdriver.PhantomJS()|g' \
+        -e 's|class |\nimport xmlrunner\n\nclass |' \
+        -e "s|self.base_url = \".*\"|self.base_url = \"${URL}\"|" \
+        -e "s|unittest.main(|unittest.main(testRunner=xmlrunner.XMLTestRunner(output=\"${RESULTS_DIR}\")|"
+}
+
+function run_tests {
+    local source_dir=`get_test_scripts`
+    local test_script_names=`ls *.py`
+
+    if [ ! -d "${RESULTS_DIR}" ]; then
+        mkdir -p $RESULTS_DIR
+    fi
+
+    for test_script_name in $test_script_names; do
+        writeln "==== Running '${test_script_name}' test script ==="
+        cat "${source_dir}/${test_script_name}" | prepare_test | python -
+    done
+    cd "${WORKSPACE}"
+
+    writeln "==== Running temporary test directory ${source_dir} ===="
+    rm -rf "${source_dir}"
+}
+
+initialize "$@"
+run_tests

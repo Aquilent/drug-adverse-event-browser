@@ -5,11 +5,13 @@ PLATFORM_HOME=/opt/gsa-ads
 
 CONFIG_FILE="${PLATFORM_HOME}/conf/manage.conf"
 TEST_SCRIPT_PATH="src/test/selenium/test-scripts"
+CLEANUP="${TRUE_VALUE}"
 
 function get_parameters {
     while test $# -gt 0; do
         case $1 in
           --branch*|-b*)        BRANCH=`get_parameter "(-b|--branch)" "$1"` ;;
+          --no-cleanup)         CLEANUP="${FALSE_VALUE}" ;;
           --config-file*|-c*)   CONFIG_FILE=`get_parameter "(-c|--config-file)" "$1"` ;;
           --environment*|-e*)   ENVIRONMENT=`get_parameter "(-e|--environment)" "$1"` ;;
           --quiet|-q)           set__quiet ;;
@@ -48,8 +50,9 @@ function get_properties {
     if [ "${BRANCH_NAME}" == "" ]; then
         BRANCH_NAME=`get_property "${ENV}_BRANCH_NAME" "master"`
     fi
+    SOURCE_DIR="/tmp/gsa-ads/selenium/${BRANCH_NAME}"
 
-    RESULTS_DIR="${WORKSPACE}/test-reports"
+    TEST_REPORTS_DIR="${WORKSPACE}/test-reports"
 }
 
 function initialize {
@@ -71,56 +74,77 @@ function kill_ssh_agent {
 }
 
 function get_test_scripts {
-    local dir=`mktemp -d`
-    local to_dir=`mktemp -d`
-    writeln "==== Created temporary test directory ${to_dir} ===="
-    writeln "Getting ${BRANCH_NAME}/${TEST_SCRIPT_PATH} ${GIT_OWNER}/${GIT_REPO} using ${GIT_CERT}"
-   
-    cd "${dir}" &> /dev/null
+    writeln "Getting sources from '${GIT_OWNER}/${GIT_REPO}/${TEST_SCRIPT_PATH}'" \
+        "; using branch '${BRANCH_NAME}'"
+    verbose_verbose "Cloning into directory ${SOURCE_DIR} and using '${GIT_CERT}'"
+ 
+    if [ -d "${SOURCE_DIR}" ]; then
+        writeln "Cleanup "${SOURCE_DIR}" directory"
+        rm -rf "${SOURCE_DIR}"
+    fi
     setup_ssh_agent
     ssh-add -t 30 "/home/${GIT_USER}/.ssh/${GIT_CERT}"
-    git clone --branch "${BRANCH_NAME}" "ssh://git@github.com/${GIT_OWNER}/${GIT_REPO}.git"
+    git clone --branch "${BRANCH_NAME}" "ssh://git@github.com/${GIT_OWNER}/${GIT_REPO}.git" \
+        "${SOURCE_DIR}"
     kill_ssh_agent
-    if [ -d "./${GIT_REPO}/${TEST_SCRIPT_PATH}" ]; then
-        rm -rf "${to_dir}" # want to replace the directory
-        mv "${GIT_REPO}/${TEST_SCRIPT_PATH}" "${to_dir}"
-    else
-        writeln "===== WARNING: NO SELENIUM TEST SCRIPTS FOUND ====="
-    fi
-    echo "${to_dir}"
 }
 
 function prepare_test {
+    local file_name="$1"
     # The patterns are used to:
-    #     1. Turn script into python script
     #     2. Ensure the PhantomJS web driver is used (need to be headless)
-    #     3. The xmlrunner class is imported (for XML-based JUNIT report)
-    #     4. Use the proper environment URL
+    local use_phantomjs="s|self.driver = webdriver.*()|self.driver = webdriver.PhantomJS()|g"
+    #     3. Use the proper environment URL
+    local replace_url_with_environment_url="s|self.base_url = \".*\"|self.base_url = \"${URL}\"|" 
+    #     4. The xmlrunner class is imported (for XML-based JUNIT report)
+    local import_xmlrunner="s|class |\nimport xmlrunner\n\nclass |"
     #     5. Use the xmlrunner to generate XML-based JUNIT report (for Jenkins)
-    sed -e '1s|^|#!/usr/bin/python\n|' \
-        -e 's|self.driver = webdriver.*()|self.driver = webdriver.PhantomJS()|g' \
-        -e 's|class |\nimport xmlrunner\n\nclass |' \
-        -e "s|self.base_url = \".*\"|self.base_url = \"${URL}\"|" \
-        -e "s|unittest.main(|unittest.main(testRunner=xmlrunner.XMLTestRunner(output=\"${RESULTS_DIR}\")|"
+    local test_runner="testRunner=xmlrunner.XMLTestRunner(output=\"${TEST_REPORTS_DIR}\""
+    local generate_junit_output="s|unittest.main(|unittest.main(${test_runner})|"
+    verbose_verbose "Preparing test '${file_name}' in-place"
+    sed -i "${file_name}" \
+        -e "${use_phantomjs}" \
+        -e "${replace_url_with_environment_url}" \
+        -e "${import_xmlrunner}" \
+        -e "${generate_junit_output}" 
 }
 
 function run_tests {
-    local source_dir=`get_test_scripts`
-    local test_script_names=`ls *.py`
+    local script_names=""
+    local source_dir="${SOURCE_DIR}/${TEST_SCRIPT_PATH}"
 
-    if [ ! -d "${RESULTS_DIR}" ]; then
-        mkdir -p $RESULTS_DIR
+    get_test_scripts
+
+    verbose_verbose "Changing to directory '${source_dir}'"
+    pushd "${source_dir}"
+    verbose_verbose "Checking for *.py"
+    test_script_names=`ls *.py`
+
+    writeln "Storing test reports in '${TEST_REPORTS_DIR}'"
+    if [ ! -d "${TEST_REPORTS_DIR}" ]; then
+        writeln "Creating '${TEST_REPORTS_DIR}"'; Does not exist yet'
+        mkdir -p $TEST_REPORTS_DIR
     fi
 
     for test_script_name in $test_script_names; do
-        writeln "==== Running '${test_script_name}' test script ==="
-        cat "${source_dir}/${test_script_name}" | prepare_test | python -
+        prepare_test "${test_script_name}" 
+        writeln "Running '${test_script_name}' test script"
+        python "./${test_script_name}"
     done
-    cd "${WORKSPACE}"
 
-    writeln "==== Running temporary test directory ${source_dir} ===="
-    rm -rf "${source_dir}"
+    popd
+
+    if [ "${CLEANUP}" == "${TRUE_VALUE}" ]; then
+        writeln "Cleanup cloned directory"
+        rm -rf "${SOURCE_DIR}"
+    else 
+        rm -rf "${SOURCE_DIR}/doc"
+        rm -rf "${SOURCE_DIR}/src/main"
+        writeln "Keeping cloned directory"
+    fi
+
 }
 
 initialize "$@"
+writeln "Run tests for ${ENVIRONMENT} at ${URL}"
 run_tests

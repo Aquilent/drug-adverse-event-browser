@@ -11,7 +11,7 @@ class HeaderAndFooterNavigationLinks(unittest.TestCase):
     def setUp(self):
         self.driver = webdriver.Firefox()
         self.driver.implicitly_wait(30)
-        self.base_url = "http://gsa-ads-2-elbwebex-15wqptfab7c7o-1537924130.us-east-1.elb.amazonaws.com/"
+        self.base_url = "http://gsa-ads-2-elbwebex-1l78v7v6k7szj-2091903140.us-east-1.elb.amazonaws.com/"
         self.verificationErrors = []
         self.accept_next_alert = True
     
@@ -22,7 +22,7 @@ class HeaderAndFooterNavigationLinks(unittest.TestCase):
         driver.find_element_by_link_text("About the Tool").click()
         driver.find_element_by_xpath("(//a[contains(text(),'About the Tool')])[2]").click()
         driver.find_element_by_xpath("(//a[contains(text(),'Disclaimers')])[2]").click()
-        driver.find_element_by_link_text("Search").click()
+        driver.find_element_by_css_selector("a[title=\"Search\"]").click()
         driver.find_element_by_css_selector("img[alt=\"openFDA logo\"]").click()
         driver.back()
         driver.find_element_by_css_selector("a[title=\"Aquilent Web Site\"] > img[alt=\"Aquilent logo\"]").click()

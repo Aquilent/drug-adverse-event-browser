@@ -11,7 +11,7 @@ class VerifyTextInstructionsDisclaimerSearch(unittest.TestCase):
     def setUp(self):
         self.driver = webdriver.Firefox()
         self.driver.implicitly_wait(30)
-        self.base_url = "http://gsa-ads-2-elbwebex-15wqptfab7c7o-1537924130.us-east-1.elb.amazonaws.com/"
+        self.base_url = "http://gsa-ads-2-elbwebex-1l78v7v6k7szj-2091903140.us-east-1.elb.amazonaws.com/"
         self.verificationErrors = []
         self.accept_next_alert = True
     
@@ -31,11 +31,11 @@ class VerifyTextInstructionsDisclaimerSearch(unittest.TestCase):
         driver.find_element_by_link_text("Search").click()
         try: self.assertEqual("Drug Reaction Finder", driver.find_element_by_css_selector("h1").text)
         except AssertionError as e: self.verificationErrors.append(str(e))
-        try: self.assertEqual("Enter a drug name to start your search", driver.find_element_by_css_selector("label").text)
+        try: self.assertEqual("Enter the name of one or two drugs to find out if any adverse reactions were reported.", driver.find_element_by_css_selector("strong").text)
         except AssertionError as e: self.verificationErrors.append(str(e))
-        try: self.assertEqual("", driver.find_element_by_id("drugOne").text)
+        try: self.assertEqual("", driver.find_element_by_name("drugOne").text)
         except AssertionError as e: self.verificationErrors.append(str(e))
-        try: self.assertEqual("", driver.find_element_by_id("drugTwo").text)
+        try: self.assertEqual("", driver.find_element_by_name("drugTwo").text)
         except AssertionError as e: self.verificationErrors.append(str(e))
     
     def is_element_present(self, how, what):

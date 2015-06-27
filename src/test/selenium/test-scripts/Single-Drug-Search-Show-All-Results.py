@@ -11,15 +11,15 @@ class SingleDrugSearchShowAllResults(unittest.TestCase):
     def setUp(self):
         self.driver = webdriver.Firefox()
         self.driver.implicitly_wait(30)
-        self.base_url = "http://gsa-ads-2-elbwebex-15wqptfab7c7o-1537924130.us-east-1.elb.amazonaws.com/"
+        self.base_url = "http://gsa-ads-2-elbwebex-1l78v7v6k7szj-2091903140.us-east-1.elb.amazonaws.com/"
         self.verificationErrors = []
         self.accept_next_alert = True
     
     def test_single_drug_search_show_all_results(self):
         driver = self.driver
         driver.get(self.base_url + "/")
-        driver.find_element_by_id("drugOne").clear()
-        driver.find_element_by_id("drugOne").send_keys("Tylenol")
+        driver.find_element_by_name("drugOne").clear()
+        driver.find_element_by_name("drugOne").send_keys("Tylenol")
         driver.find_element_by_xpath("//button[@type='submit']").click()
         driver.find_element_by_xpath("(//button[@type='button'])[2]").click()
         driver.find_element_by_xpath("(//button[@type='button'])[2]").click()

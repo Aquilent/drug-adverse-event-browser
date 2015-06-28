@@ -44,6 +44,7 @@ class ReactionController extends Controller {
 	public function listReactions(Request $request, $drugOne, $drugTwo = null)
 	{
 		$connector = new FDAConnector();
+
 		$reactions = $this->limitResults($connector->getDrugReactions($drugOne, $drugTwo));
 		
 		return view('reactions', compact('drugOne', 'drugTwo', 'reactions'));
@@ -57,9 +58,22 @@ class ReactionController extends Controller {
 	public function listInteractions(Request $request, $reaction, $drugOne, $drugTwo = null)
 	{
 		$connector = new FDAConnector();
-		$interactions = $this->limitResults($connector->getDrugReactionInteractions($reaction, $drugOne, $drugTwo));
+
+		$data = [
+			'drugOne'		=>	$drugOne,
+			'drugTwo'		=>	$drugTwo,
+			'reaction' 	=> 	$reaction,
+			'total'			=> 	$connector->getDrugReactionTotal($reaction, $drugOne, $drugTwo),
+			'genders'		=>	$connector->getDrugReactionGender($reaction, $drugOne, $drugTwo),
+			'ages'			=>	$connector->getDrugReactionAge($reaction, $drugOne, $drugTwo),
+			'weights'		=>	$connector->getDrugReactionWeight($reaction, $drugOne, $drugTwo)
+		];
+
+		return view('demographics', $data);
+
+		//$interactions = $this->limitResults($connector->getDrugReactionInteractions($reaction, $drugOne, $drugTwo));
 		
-		return view('interactions', compact('drugOne', 'drugTwo', 'reaction', 'interactions'));
+		//return view('interactions', compact('drugOne', 'drugTwo', 'reaction', 'interactions'));
 	} 
 
 	/**

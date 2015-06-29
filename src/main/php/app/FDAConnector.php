@@ -156,7 +156,7 @@ class FDAConnector {
     $terms[] = '(patient.patientonsetageunit:802+AND+patient.patientonsetage:[' . ($from * 12) . '+TO+' . (($to * 12) - $delta) . '])';
     $terms[] = '(patient.patientonsetageunit:803+AND+patient.patientonsetage:[' . ($from * 52) . '+TO+' . (($to * 52) - $delta) . '])';
     $terms[] = '(patient.patientonsetageunit:804+AND+patient.patientonsetage:[' . ($from * 365) . '+TO+' . (($to * 365) - $delta) . '])';
-    $terms[] = '(patient.patientonsetageunit:806+AND+patient.patientonsetage:[' . ($from * 8760) . '+TO+' . (($to * 8760) - $delta) . '])';
+    $terms[] = '(patient.patientonsetageunit:805+AND+patient.patientonsetage:[' . ($from * 8760) . '+TO+' . (($to * 8760) - $delta) . '])';
     return '(' . implode('+', $terms) . ')';
   }
 

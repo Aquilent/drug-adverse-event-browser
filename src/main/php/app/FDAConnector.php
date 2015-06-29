@@ -7,8 +7,8 @@ class FDAConnector {
 
   protected $client;
 
-  public function __construct() {
-    $this->client = new FDAClient();
+  public function __construct(FDAClient $client) {
+    $this->client = $client;
   }
 
   public function getDrugReactions($drugOne, $drugTwo = null) {
@@ -52,16 +52,11 @@ class FDAConnector {
       'search' => $this->buildSearchTerm($drugOne, $drugTwo, $reaction) . '+AND+patient.patientsex:0',
     ]);
 
-    $totals['No Information'] = $this->client->getTotal([
+    $totals['Not Reported'] = $this->client->getTotal([
       'search' => $this->buildSearchTerm($drugOne, $drugTwo, $reaction) . '+AND+_missing_:patient.patientsex',
     ]);
 
-    foreach($totals AS $key => $total) {
-      $return[] = (object) ['term'=> $key, 'count'=> $total];
-    }
-    return $return;
-
-    return $totals;
+    return $this->formatReturn($totals);
   }
 
   public function getDrugReactionAge($reaction, $drugOne, $drugTwo = null) {
@@ -69,19 +64,19 @@ class FDAConnector {
       'search' => $this->buildSearchTerm($drugOne, $drugTwo, $reaction) . '+AND+' . $this->buildAgeSearchTerm(-100, 1)
     ]);
 
-    $totals['1 to 18'] =  $this->client->getTotal([
+    $totals['1 to 17'] =  $this->client->getTotal([
       'search' => $this->buildSearchTerm($drugOne, $drugTwo, $reaction) . '+AND+' . $this->buildAgeSearchTerm(1, 18)
     ]);
 
-    $totals['18 to 35'] =  $this->client->getTotal([
+    $totals['18 to 34'] =  $this->client->getTotal([
       'search' => $this->buildSearchTerm($drugOne, $drugTwo, $reaction) . '+AND+' . $this->buildAgeSearchTerm(18, 35)
     ]);
 
-    $totals['35 to 55'] =  $this->client->getTotal([
+    $totals['35 to 54'] =  $this->client->getTotal([
       'search' => $this->buildSearchTerm($drugOne, $drugTwo, $reaction) . '+AND+' . $this->buildAgeSearchTerm(35, 55)
     ]);
 
-    $totals['55 to 65'] =  $this->client->getTotal([
+    $totals['55 to 64'] =  $this->client->getTotal([
       'search' => $this->buildSearchTerm($drugOne, $drugTwo, $reaction) . '+AND+' . $this->buildAgeSearchTerm(55, 65)
     ]);
 
@@ -89,17 +84,11 @@ class FDAConnector {
       'search' => $this->buildSearchTerm($drugOne, $drugTwo, $reaction) . '+AND+' . $this->buildAgeSearchTerm(65, 10000)
     ]);
 
-    $totals['No Information'] =  $this->client->getTotal([
+    $totals['Not Reported'] =  $this->client->getTotal([
       'search' => $this->buildSearchTerm($drugOne, $drugTwo, $reaction) . '+AND+_missing_:(patient.patientonsetage+patient.patientonsetageunit)'
     ]);
 
-
-    foreach($totals AS $key => $total) {
-      $return[] = (object) ['term'=> $key, 'count'=> $total];
-    }
-    return $return;
-
-    return $totals;
+    return $this->formatReturn($totals);
   }
 
   public function getDrugReactionWeight($reaction, $drugOne, $drugTwo = null) {
@@ -108,19 +97,19 @@ class FDAConnector {
       'search' => $this->buildSearchTerm($drugOne, $drugTwo, $reaction) . '+AND+' . $this->buildWeightSearchTerm(0, 50),
     ]);
 
-    $totals['50 to 100 LBS'] = $this->client->getTotal([
+    $totals['50 to 99 LBS'] = $this->client->getTotal([
       'search' => $this->buildSearchTerm($drugOne, $drugTwo, $reaction) . '+AND+' . $this->buildWeightSearchTerm(50, 100),
     ]);
 
-    $totals['100 to 150 LBS'] = $this->client->getTotal([
+    $totals['100 to 149 LBS'] = $this->client->getTotal([
       'search' => $this->buildSearchTerm($drugOne, $drugTwo, $reaction) . '+AND+' . $this->buildWeightSearchTerm(100, 150),
     ]);
 
-    $totals['150 to 200 LBS'] = $this->client->getTotal([
+    $totals['150 to 199 LBS'] = $this->client->getTotal([
       'search' => $this->buildSearchTerm($drugOne, $drugTwo, $reaction) . '+AND+' . $this->buildWeightSearchTerm(150, 200),
     ]);
 
-    $totals['200 to 250 LBS'] = $this->client->getTotal([
+    $totals['200 to 249 LBS'] = $this->client->getTotal([
       'search' => $this->buildSearchTerm($drugOne, $drugTwo, $reaction) . '+AND+' . $this->buildWeightSearchTerm(200, 250),
     ]);
 
@@ -128,16 +117,11 @@ class FDAConnector {
       'search' => $this->buildSearchTerm($drugOne, $drugTwo, $reaction) . '+AND+' . $this->buildWeightSearchTerm(250, 10000),
     ]);
 
-    $totals['No Information'] = $this->client->getTotal([
+    $totals['Not Reported'] = $this->client->getTotal([
       'search' => $this->buildSearchTerm($drugOne, $drugTwo, $reaction) . '+AND+_missing_:patient.patientweight',
     ]);
 
-    foreach($totals AS $key => $total) {
-      $return[] = (object) ['term'=> $key, 'count'=> $total];
-    }
-    return $return;
-
-    return $totals;
+    return $this->formatReturn($totals);
   }
 
   protected function buildSearchTerm($drugOne, $drugTwo = null , $reaction = null) {
@@ -149,7 +133,7 @@ class FDAConnector {
   }
 
   protected function buildAgeSearchTerm($from, $to) {
-    $delta = .00001;
+    $delta = .001;
 
     $terms[] = '(patient.patientonsetageunit:800+AND+patient.patientonsetage:[' . ($from * .1) . '+TO+' . (($to * .1) - $delta) . '])';
     $terms[] = '(patient.patientonsetageunit:801+AND+patient.patientonsetage:[' . ($from) . '+TO+' . (($to) - $delta) . '])';
@@ -161,11 +145,18 @@ class FDAConnector {
   }
 
   protected function buildWeightSearchTerm($from, $to) {
-    return '(patient.patientweight:[' . ($from * 0.453592) . '+TO+' . (($to * 0.453592) - .00001) . '])';
+    return '(patient.patientweight:[' . ($from * 0.453592) . '+TO+' . (($to * 0.453592) - .001) . '])';
   }
 
   protected function formatQueryString($string) {
     return '"' . str_replace(' ', '+', strtoupper($string)) . '"';
+  }
+
+  protected function formatReturn($totals) {
+    foreach($totals AS $key => $total) {
+      $return[] = (object) ['term'=> $key, 'count'=> $total];
+    }
+    return $return;
   }
 
 }

@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://gsa-ads-2-elbwebex-1l78v7v6k7szj-2091903140.us-east-1.elb.amazonaws.com/" />
+<title>S2-Verify GAW Tables</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">S2-Verify GAW Tables</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>name=drugOne</td>
+	<td>Aspirin</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>//button[@type='submit']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=Flushing</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>css=h2</td>
+	<td>Gender, Age, and Weight Differences in Drug Interactions</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>//p[3]/strong</td>
+	<td>Flushing</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>//strong[2]</td>
+	<td>Aspirin</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>css=th</td>
+	<td>Gender</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>css=th.text-right</td>
+	<td># of Reports</td>
+</tr>
+<tr>
+	<td>verifyTable</td>
+	<td>//table.1.0</td>
+	<td>Male</td>
+</tr>
+<tr>
+	<td>verifyTable</td>
+	<td>//table.2.0</td>
+	<td>Female</td>
+</tr>
+<tr>
+	<td>verifyTable</td>
+	<td>//table.3.0</td>
+	<td>Unknown</td>
+</tr>
+<tr>
+	<td>verifyTable</td>
+	<td>//table.4.0</td>
+	<td>Not Reported</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>//table[2]/thead/tr/th</td>
+	<td>Age</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>//table[2]/thead/tr/th[2]</td>
+	<td># of Reports</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>//table[2]/tbody/tr/td</td>
+	<td>&lt; 1</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>//table[2]/tbody/tr[2]/td</td>
+	<td>1 To 17</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>//table[2]/tbody/tr[4]/td</td>
+	<td>35 To 54</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>//tr[5]/td</td>
+	<td>55 To 64</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>//tr[6]/td</td>
+	<td>&gt; 65</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>//tr[7]/td</td>
+	<td>Not Reported</td>
+</tr>
+<tr>
+	<td>verifyTable</td>
+	<td>//table[3].0.0</td>
+	<td>Weight</td>
+</tr>
+<tr>
+	<td>verifyTable</td>
+	<td>//table[3].0.1</td>
+	<td># of Reports</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>//table[3]/tbody/tr/td</td>
+	<td>&lt; 50 Lbs</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>//table[3]/tbody/tr[2]/td</td>
+	<td>50 To 99 Lbs</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>//table[3]/tbody/tr[3]/td</td>
+	<td>100 To 149 Lbs</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>//table[3]/tbody/tr[4]/td</td>
+	<td>150 To 199 Lbs</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>//table[3]/tbody/tr[5]/td</td>
+	<td>200 To 249 Lbs</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>//table[3]/tbody/tr[6]/td</td>
+	<td>&gt; 250 Lbs</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>//table[3]/tbody/tr[7]/td</td>
+	<td>Not Reported</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>xpath=(//button[@type='button'])[2]</td>
+	<td>BACK TO DRUG REACTIONS LIST</td>
+</tr>
+<tr>
+	<td>verifyElementPresent</td>
+	<td>//table[3]/thead/tr/th[2]/a/span</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyElementPresent</td>
+	<td>//table[2]/thead/tr/th[2]/a/span</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyElementPresent</td>
+	<td>css=span.glyphicon.glyphicon-question-sign</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>xpath=(//button[@type='button'])[2]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>link=Flushing</td>
+	<td>Flushing</td>
+</tr>
+
+</tbody></table>
+</body>
+</html>

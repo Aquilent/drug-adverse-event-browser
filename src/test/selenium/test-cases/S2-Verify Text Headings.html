@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://gsa-ads-2-elbwebex-1l78v7v6k7szj-2091903140.us-east-1.elb.amazonaws.com/" />
+<title>S2-Verify Text Headings</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">S2-Verify Text Headings</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/disclaimers</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>css=h2</td>
+	<td>Disclaimers</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>css=strong</td>
+	<td>About the Data</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=About the Tool</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>css=h2</td>
+	<td>About the Tool</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>css=strong</td>
+	<td>exact:How does the Drug Reaction Finder work?</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>//p[3]/strong</td>
+	<td>exact:Where does the data come from?</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>//p[4]/strong</td>
+	<td>exact:What should I do if I see an adverse reaction or drug interaction in my search results?</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>//p[5]/strong</td>
+	<td>exact:My search had zero results. Is the tool broken or are there no possible drug interactions?</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>//p[7]/strong</td>
+	<td>exact:Can I search for multiple drugs simultaneously?</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>css=h1</td>
+	<td>Drug Reaction Finder</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=Search</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>css=strong</td>
+	<td>Enter the name of one or two drugs to find out if any adverse reactions were reported.</td>
+</tr>
+</tbody></table>
+</body>
+</html>

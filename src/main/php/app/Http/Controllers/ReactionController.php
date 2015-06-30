@@ -16,13 +16,16 @@ class ReactionController extends Controller {
 	|
 	*/
 
+	protected $fda;
+
 	/**
 	 * Create a new controller instance.
 	 *
 	 * @return void
 	 */
-	public function __construct()
+	public function __construct(FDAConnector $fda)
 	{
+		$this->fda = $fda;
 		$this->middleware('guest');
 	}
 
@@ -43,9 +46,9 @@ class ReactionController extends Controller {
 	 */
 	public function listReactions(Request $request, $drugOne, $drugTwo = null)
 	{
-		$connector = new FDAConnector();
+		session()->flash('show', $request->get('show'));
 
-		$reactions = $this->limitResults($connector->getDrugReactions($drugOne, $drugTwo));
+		$reactions = $this->limitResults($this->fda->getDrugReactions($drugOne, $drugTwo));
 		
 		return view('reactions', compact('drugOne', 'drugTwo', 'reactions'));
 	}
@@ -57,21 +60,19 @@ class ReactionController extends Controller {
 	 */
 	public function listInteractions(Request $request, $reaction, $drugOne, $drugTwo = null)
 	{
-		$connector = new FDAConnector();
-
 		$data = [
 			'drugOne'		=>	$drugOne,
 			'drugTwo'		=>	$drugTwo,
 			'reaction' 	=> 	$reaction,
-			'total'			=> 	$connector->getDrugReactionTotal($reaction, $drugOne, $drugTwo),
-			'genders'		=>	$connector->getDrugReactionGender($reaction, $drugOne, $drugTwo),
-			'ages'			=>	$connector->getDrugReactionAge($reaction, $drugOne, $drugTwo),
-			'weights'		=>	$connector->getDrugReactionWeight($reaction, $drugOne, $drugTwo)
+			'total'			=> 	$this->fda->getDrugReactionTotal($reaction, $drugOne, $drugTwo),
+			'genders'		=>	$this->fda->getDrugReactionGender($reaction, $drugOne, $drugTwo),
+			'ages'			=>	$this->fda->getDrugReactionAge($reaction, $drugOne, $drugTwo),
+			'weights'		=>	$this->fda->getDrugReactionWeight($reaction, $drugOne, $drugTwo)
 		];
 
 		return view('demographics', $data);
 
-		//$interactions = $this->limitResults($connector->getDrugReactionInteractions($reaction, $drugOne, $drugTwo));
+		//$interactions = $this->limitResults($this->fda->getDrugReactionInteractions($reaction, $drugOne, $drugTwo));
 		
 		//return view('interactions', compact('drugOne', 'drugTwo', 'reaction', 'interactions'));
 	} 

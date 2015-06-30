@@ -21,7 +21,8 @@ class FDAClient {
       return $response->results;
     }
     catch(ClientException $e) {
-      return [];
+      if ($e->getCode() == 404) return [];
+      throw $e;
     }
   }
 
@@ -31,7 +32,8 @@ class FDAClient {
       return $response->meta->results->total;
     }
     catch(ClientException $e) {
-      return 0;
+      if ($e->getCode() == 404) return 0;
+      throw $e;
     }
   }
   

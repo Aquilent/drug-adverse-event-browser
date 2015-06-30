@@ -46,6 +46,8 @@ class ReactionController extends Controller {
 	 */
 	public function listReactions(Request $request, $drugOne, $drugTwo = null)
 	{
+		session()->flash('show', $request->get('show'));
+
 		$reactions = $this->limitResults($this->fda->getDrugReactions($drugOne, $drugTwo));
 		
 		return view('reactions', compact('drugOne', 'drugTwo', 'reactions'));

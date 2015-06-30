@@ -7,6 +7,20 @@
     AllowOverride All
     Order allow,deny
     Allow from all
+    # --------------------------------------------------------------------------
+    # Specify an OPEN FDA API key to be used in quries against opn.fda.gov
+    # You can specif none, 1, or more (comma-separated)
+    # If no key is specified, no key is used
+    # If 1 is specified, this key is used for every query
+    # if 2 or more keys are specified, the application will randomly pick
+    # one of the keys for each query
+    # When an API key is not used, the application is limited to 40 requests 
+    # per minute (per IP Address) and 1000 requests per day (per IP Address). 
+    # When an API key is used, the application is limited to 240 requests per 
+    # minute (per IP Address) and 120000 requests per day (per IP Address).
+    #
+    # SetEnv OPENFDA_API_KEY=[API_KEY1],[API_KEY2]
+    # --------------------------------------------------------------------------
     RewriteEngine on
     RewriteBase /
     RewriteCond %{REQUEST_FILENAME} !-f

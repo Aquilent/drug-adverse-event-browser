@@ -40,7 +40,7 @@ class ReactionController extends Controller {
 			return redirect()->route('home')->withError('Please enter at least one drug name for your search.');
 		}
 
-		return redirect()->route('listReactions', [ trim($request->drugOne), trim($request->drugTwo) ]);
+		return redirect()->route('listReactions', [ format_get($request->drugOne), format_get($request->drugTwo) ]);
 	}
 
 	/**

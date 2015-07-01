@@ -36,6 +36,10 @@ class ReactionController extends Controller {
 	 */
 	public function getReactions(Request $request)
 	{
+		if (!($request->has('drugOne') || $request->has('drugTwo'))) {
+			return redirect()->route('home')->withError('Please enter at least one drug name for your search.');
+		}
+
 		return redirect()->route('listReactions', [ trim($request->drugOne), trim($request->drugTwo) ]);
 	}
 
@@ -71,10 +75,6 @@ class ReactionController extends Controller {
 		];
 
 		return view('demographics', $data);
-
-		//$interactions = $this->limitResults($this->fda->getDrugReactionInteractions($reaction, $drugOne, $drugTwo));
-		
-		//return view('interactions', compact('drugOne', 'drugTwo', 'reaction', 'interactions'));
 	} 
 
 	/**

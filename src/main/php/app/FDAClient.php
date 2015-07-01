@@ -53,7 +53,7 @@ class FDAClient {
     return json_decode($response->getBody()->getContents());
   }
 
-  protected function formatUrl($query) {
+  public function formatUrl($query) {
     $url = $this->baseUri . $this->drugUrl . '?' . $this->getAPIKey();
     foreach($query AS $param => $value) {
       $url .= '&' . $param . '=' . $value;

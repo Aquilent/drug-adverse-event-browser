@@ -1,0 +1,1 @@
+@extends('layout')@section('content')  <h2>Generic Error Message</h2>  <p>Generic Error Text</p>@stop

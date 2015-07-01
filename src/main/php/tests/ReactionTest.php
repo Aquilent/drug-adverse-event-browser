@@ -63,4 +63,18 @@ class ReactionTest extends TestCase {
 		$response = $this->route('GET', 'listReactions', ['Ibuprofen', 'Advil']);
 	}
 
+	/**
+	 * Test that when empty array is returned resulting page displays no results found text
+	 *
+	 * @return void
+	 */
+	public function testNoResultsFound()
+	{
+		$this->mock('App\FDAConnector')->shouldReceive('getDrugReactions')->with('Ibuprofen', 'Advil')->once()->andReturn([]);
+
+		$response = $this->route('GET', 'listReactions', ['Ibuprofen', 'Advil']);
+
+		$this->assertContains('No results found.', $response->getContent());
+	}
+
 }

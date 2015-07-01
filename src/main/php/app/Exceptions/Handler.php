@@ -42,10 +42,10 @@ class Handler extends ExceptionHandler {
 		if (config('app.debug')) return parent::render($request, $e);
 
 		// Connect Exception asssume API was unavailable
-		if ($e instanceof ConnectException) return response()->view('errors.404', [], 404);
+		// if ($e instanceof ConnectException) return response()->view('errors.404', [], 404);
 
 		// API Limit Reached Exception
-		if (($e instanceof ClientException) && $e->getCode() == 429) return response()->view('errors.429', [], 429);
+		// if (($e instanceof ClientException) && $e->getCode() == 429) return response()->view('errors.429', [], 429);
 
 		// Generic error page
 		return response()->view('errors.500', [], 500);

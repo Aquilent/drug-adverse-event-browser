@@ -1,4 +1,4 @@
-# How to run the Application in a Docker container
+# How to Run the Application in a Docker Container
 To run the application in a Docker container take the following steps:
 
 1. Copy the entire bin and prototype directory to the home directory on 

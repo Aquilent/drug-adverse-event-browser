@@ -1,5 +1,14 @@
-# How to Run the Application in a Docker Container
-To run the application in a Docker container take the following steps:
+# How to Run the Application in Docker
+
+## Scripted Process
+
+### Prerequisites
+1. CentOS 6.6 host server (other Red Hat derivatives may also work, but have not been tested).
+2. Server must allow outbound TCP traffic on ports 22, 80 and 443 and accept return traffic 
+
+### Steps
+
+To setup the application in a Docker container take the following steps:
 
 1. Copy the entire bin and prototype directory to the home directory on 
    the host machine where you want to run ythe prototype inside docker.
@@ -55,4 +64,35 @@ To run the application in a Docker container take the following steps:
       </html>
 ```
 
-**NOTE**: These steps assume you are using Red Hat derivative, specifically CentOS 6.6, as the host machine. 
+### Notes
+
+* The container uses a mounted volume. You can find the location of the volume by running:
+```
+    container_id=`sudo docker ps`; sudo docker inspect $container_id | grep "\"/var/www/gsa-ads\": \""
+```
+   This returns a list that contains the mappings of the directory, that our container hosts the application code in (`/var/www/gsa-ads`), to a directory local to the host (e.g. 
+```
+   /var/lib/docker/vfs/dir/54f07f93b31e3bd1d15c6823fd6321b5806649fd89b88c6305c750043b750b4b
+```
+* You can make changes to the application's code by modifying the files in the directory local to the host. Some changes may require a restart of the container using `sudo docker restart $container_id`
+
+
+## Manual Process
+
+**These steps** are a reflection of the automated process, but are **untested** when used manually in other host operating systems.
+
+### Prequisites
+
+1. Docker is already installed on your host server and the docker daemon is already running
+2. You can use docker as an unprivileged user or know ho to run the below commands as a privileged user.
+
+### Steps
+
+1. Create a git clone locally (or download the repository as a zip file)
+2. Copy the `src/main/docker/prototype` directory to a local directory.
+3. Copy the `src/main/chef` and `src/main/php` directories into the local copy of the `prototype` directory.
+4. Run `docker build --tag=prototype --rm=true --force-rm=true "/path/to/the/local/prototype/directory"`
+5. Run `docker run -p 80:80 -d prototype`.
+   Replace 80:80 with <your host HTTP port>:80, if your host is not accepting HTTP traffic on port 80.
+
+

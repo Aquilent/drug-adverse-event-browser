@@ -1,4 +1,4 @@
-REM @echo off
+@echo off
 
 
 if not exist %ZIP_HOME%\7z.exe (
@@ -22,19 +22,18 @@ SET DateTime=%DTS:~0,4%%DTS:~4,2%%DTS:~6,2%-%DTS:~8,2%%DTS:~10,2%
 set SOURCE_HOME=%BRANCH_HOME:/=\%\src\main\chef
 set TARGET_HOME=%BRANCH_HOME:/=\%\target
 set CHEF_TARGET_HOME=%TARGET_HOME%\chef
-set ARCHIVE_NAME=GSA-ADS-%BRANCH_NAME%-chef-%DateTime%.zip
+set ARCHIVE_NAME=GSA-ADS-%BRANCH_NAME%-chef-%DateTime%
 set ARCHIVE=%TARGET_HOME%\%ARCHIVE_NAME%
 
-echo TARGET+_HOME=%TARGET_HOME%
+echo TARGET_HOME=%TARGET_HOME%
 echo Create Chef archive in %ARCHIVE%
 
 echo Removing old target directory
-rd /s /q %TARGET_HOME%/chef
+rd /s /q %TARGET_HOME%\chef
 if exist %ARCHIVE% ( 
     echo Removing old archive %ARCHIVE%
     del /q %ARCHIVE% 
 )
-echo on
 echo Copy Chef source directory %SOURCE_HOME% to %CHEF_TARGET_HOME%
 mkdir %TARGET_HOME%
 mkdir %CHEF_TARGET_HOME%
@@ -42,9 +41,11 @@ xcopy %SOURCE_HOME%\*.* %CHEF_TARGET_HOME%\ /s /q /e
 
 echo Creating %ARCHIVE%
 REM http://sevenzip.osdn.jp/chm/cmdline/syntax.htm
-%ZIP_HOME%\7z.exe a -tzip -mx=9 -r %ARCHIVE% %CHEF_TARGET_HOME:/=\%
+%ZIP_HOME%\7z.exe a -ttar -r %ARCHIVE%.tar %CHEF_TARGET_HOME:/=\%
+%ZIP_HOME%\7z.exe a -tgzip -r %ARCHIVE%.tar.gzip %ARCHIVE%.tar
+del /q %ARCHIVE%.tar
 
 echo Clean up 
 rd /s /q %TARGET_HOME%\chef
 
-pause
+if "%1" == "--pause" ( pause )

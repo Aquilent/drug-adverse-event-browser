@@ -48,26 +48,20 @@ class ApiKeyTest extends TestCase {
 	}
 
 	/**
-	 * Tests that when multiple keys are set they are cycled each second
+	 * Tests that multiple keys are cycled
 	 *
 	 * @return void
 	 */
-	public function testTwoKeys()
+	public function testMultipleKeys()
 	{
-		putenv('OPENFDA_API_KEY=API_KEY1,API_KEY2');
+		$keys = ['API_KEY1', 'API_KEY2', 'API_KEY3'];
+
+		putenv('OPENFDA_API_KEY=' . implode(',', $keys));
 
 		$client = new FDAClient();
-
-		$key1 = (Carbon::now()->second % 2 == 0) ? 'API_KEY1' : 'API_KEY2';
-		$this->assertContains('api_key=' . $key1, $client->formatUrl([]));
-
-		sleep(1);
-
-		$key2 = (Carbon::now()->second % 2 == 0) ? 'API_KEY1' : 'API_KEY2';
-		$this->assertContains('api_key=' . $key2, $client->formatUrl([]));
-
-		// Assert that both keys were used
-		$this->assertNotEquals($key1, $key2);
+		foreach($keys AS $key) {
+			$this->assertContains('api_key=' . $key, $client->formatUrl([]));
+		}
 	}
 
 }

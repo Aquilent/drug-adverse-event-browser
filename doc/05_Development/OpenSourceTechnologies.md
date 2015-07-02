@@ -4,12 +4,20 @@ Here is the list of modern, open source technologies used in this prototype
 
 + PHP v5.4
 + Laravel v5.0
++ Guzzle v5.3
 + Twitter Bootstrap v3.3.5
-+ JQuery v2.1.4
-+ Google Fonts v1
++ JQuery v1.11.3
++ Google Fonts
 + Linux / CentOS v6.6
-+ Jenkins v???
-+ Vagrant v???
-+ VirtualBox v???
-+ Varnish v???
-+ Chef v???
++ Apache HTTP Server v2.2.29
++ Jenkins v1.617
++ Vagrant v1.7.2
++ VirtualBox v4.3.26
++ Varnish v4.0
++ Chef v11.18.12
++ Ruby 1.9.3
++ RubyGems 2.1.11
++ Selenium Stand-alone Server 2.46.0
++ Firefox Selenium IDE plugin 2.9.0
++ PhantomJS 2.0
++ Python 2.7.9

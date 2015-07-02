@@ -21,7 +21,8 @@ class FDAClient {
       return $response->results;
     }
     catch(ClientException $e) {
-      return [];
+      if ($e->getCode() == 404 || $e->getCode() == 400) return [];
+      throw $e;
     }
   }
 
@@ -31,7 +32,8 @@ class FDAClient {
       return $response->meta->results->total;
     }
     catch(ClientException $e) {
-      return 0;
+      if ($e->getCode() == 404 || $e->getCode() == 400) return 0;
+      throw $e;
     }
   }
   
@@ -51,7 +53,7 @@ class FDAClient {
     return json_decode($response->getBody()->getContents());
   }
 
-  protected function formatUrl($query) {
+  public function formatUrl($query) {
     $url = $this->baseUri . $this->drugUrl . '?' . $this->getAPIKey();
     foreach($query AS $param => $value) {
       $url .= '&' . $param . '=' . $value;

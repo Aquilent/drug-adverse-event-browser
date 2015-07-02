@@ -26,10 +26,10 @@ Route::get('interactions', function()
     return view('interactions');
 });
 
-Route::get('/', function()
+Route::get('/', [ 'as' => 'home', function()
 {
     return view('index');
-});
+}]);
 
 Route::post('/', 'ReactionController@getReactions');
 

@@ -25,7 +25,7 @@ class FDAConnector {
   }
 
   public function getDrugReactionInteractions($reaction, $drugOne, $drugTwo = null) {
-    $interactions =  $this->sendQuery([
+    $interactions =  $this->client->getResults([
       'search' => $this->buildSearchTerm($drugOne, $drugTwo, $reaction),
       'count'  => 'patient.drug.medicinalproduct.exact',
     ]);

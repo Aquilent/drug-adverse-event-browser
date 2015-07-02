@@ -41,8 +41,8 @@ function validate {
     elif [ ! -f "$BUILD_HOME/${NAME}/Dockerfile" ]; then
         echo "Docker build file 'Dockerfile' does not exist in '$BUILD_HOME/${NAME}'"
         exit 2
-    elif [ ! -f "$BUILD_HOME/${NAME}/chef-config.json" ]; then
-        echo "Chef config file 'chef-config.json' does not exist in '$BUILD_HOME/${NAME}'"
+    elif [ ! -f "$BUILD_HOME/${NAME}/bootstrap.sh" ]; then
+        echo "Bootstrap script 'bootstrap.sh' does not exist in '$BUILD_HOME/${NAME}'"
         exit 3
     fi
 }
@@ -115,3 +115,4 @@ if [ "${BUILD_ONLY}" == "" ]; then
 fi
 
 build_image
+

@@ -1,4 +1,6 @@
 #!/bin/bash
 
-service varnish start
 service httpd start
+<%if node['gsa_ads']['varnish']['enabled']  then %>
+service varnish start
+<% end %>

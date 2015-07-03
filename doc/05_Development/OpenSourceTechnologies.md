@@ -2,13 +2,14 @@
 
 Here is the list of modern, open source technologies used in this prototype
 
++ Linux / CentOS v6.6
++ Docker 1.6.2
 + PHP v5.4
 + Laravel v5.0
 + Guzzle v5.3
 + Twitter Bootstrap v3.3.5
 + JQuery v1.11.3
 + Google Fonts
-+ Linux / CentOS v6.6
 + Apache HTTP Server v2.2.29
 + Jenkins v1.617
 + Vagrant v1.7.2

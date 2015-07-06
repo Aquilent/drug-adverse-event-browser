@@ -69,5 +69,5 @@ Overall, this exercise established a framework that could support the ongoing de
 ### License
 The Drug Reaction Finder prototype tool is free of charge **(Play 13)**, open-sourced software under the [MIT license](http://opensource.org/licenses/MIT).
 
-Additional artifacts supporting our Agile process for this prototype can be found (INSERT LINK).  The running Drug Reaction Finder prototype tool will be available in AWS until August 21, 2015.
+Additional artifacts supporting our Agile process for this prototype can be found [in the repository](https://github.com/Aquilent/drug-adverse-event-browser/tree/master/doc). (INSERT LINK).  The running Drug Reaction Finder prototype tool will be available in AWS until August 21, 2015.
 

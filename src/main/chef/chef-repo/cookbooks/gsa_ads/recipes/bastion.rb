@@ -121,8 +121,10 @@ Chef::Log.warn(message)
 #------------------------------------------------------------------------------
 
 case node['kernel']['machine'].to_s
-when 'x86_64' PHANTOMJS_ARCH = "x86_64"
-when 'i386'   PHANTOMJS_ARCH = "i386"
+when 'x86_64' 
+    PHANTOMJS_ARCH = "x86_64"
+when 'i386'   
+    PHANTOMJS_ARCH = "i386"
 else 
     PHANTOMJS_ARCH=nil
 end
@@ -138,19 +140,19 @@ Selenium tests.
 EOH
   Chef::Log.warn(message)
 else
-  directory "/opt/phantomjs/"
+  directory "/opt/phantomjs/" do
       mode "755"
       owner "root"
       group "root"
   end 
 
-  directory "/opt/phantomjs/bin"
+  directory "/opt/phantomjs/bin" do
       mode "755"
       owner "root"
       group "root"
   end 
 
-  cookbook_file "/opt/phantomjs/bin/phantomjs"
+  cookbook_file "/opt/phantomjs/bin/phantomjs" do
       source "bastion/phantomjs-#{PHANTOMJS_ARCH}"
       mode "755"
       owner "root"

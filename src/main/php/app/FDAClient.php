@@ -2,7 +2,6 @@
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
-use Carbon\Carbon;
 
 class FDAClient {
 
@@ -10,6 +9,7 @@ class FDAClient {
 
   protected $baseUri = 'https://api.fda.gov';
   protected $drugUrl = '/drug/event.json';
+  protected $count = 0;
 
   public function __construct() {
     $this->client = new Client(['base_uri' => $this->baseUri]);
@@ -21,7 +21,8 @@ class FDAClient {
       return $response->results;
     }
     catch(ClientException $e) {
-      return [];
+      if ($e->getCode() == 404 || $e->getCode() == 400) return [];
+      throw $e;
     }
   }
 
@@ -31,11 +32,12 @@ class FDAClient {
       return $response->meta->results->total;
     }
     catch(ClientException $e) {
-      return 0;
+      if ($e->getCode() == 404 || $e->getCode() == 400) return 0;
+      throw $e;
     }
   }
   
-  protected function sendQuery($query, $excludeMeta = true) {
+  protected function sendQuery($query, $retry = true) {
     $url = $this->formatUrl($query);
     info('Requesting: ' . $url);
 
@@ -43,6 +45,13 @@ class FDAClient {
       $response = $this->client->get($url);
     }
     catch(ClientException $e) {
+      // Wait one second and retry the request if we recieve a 429 error
+      if (($e->getCode() == 429) && $retry) {
+        info('too many requests.... retrying query');;
+        sleep(1);
+        return $this->sendQuery($query, false);
+      }
+
       $message = json_decode($e->getResponse()->getBody()->getContents())->error->message;
       logger()->error($message, compact('url'));
       throw $e;
@@ -51,7 +60,7 @@ class FDAClient {
     return json_decode($response->getBody()->getContents());
   }
 
-  protected function formatUrl($query) {
+  public function formatUrl($query) {
     $url = $this->baseUri . $this->drugUrl . '?' . $this->getAPIKey();
     foreach($query AS $param => $value) {
       $url .= '&' . $param . '=' . $value;
@@ -62,8 +71,7 @@ class FDAClient {
   protected function getAPIKey() {
     if (env('OPENFDA_API_KEY')) {
       $keys = explode(',', env('OPENFDA_API_KEY'));
-      $index = Carbon::now()->second % count($keys);
-      info('info: ' . $keys[$index]);
+      $index = $this->count++ % count($keys);
       return 'api_key=' . trim($keys[$index]);
     }
   }

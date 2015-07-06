@@ -68,7 +68,7 @@ To setup the application in a Docker container take the following steps:
 
 * The container uses a mounted volume. You can find the location of the volume by running:
 ```
-    container_id=`sudo docker ps`; sudo docker inspect $container_id | grep "\"/var/www/gsa-ads\": \""
+    container_id=`sudo docker ps -q`; sudo docker inspect $container_id | grep "\"/var/www/gsa-ads\": \""
 ```
    This returns a list that contains the mappings of the directory, that our container hosts the application code in (`/var/www/gsa-ads`), to a directory local to the host (e.g. 
 ```

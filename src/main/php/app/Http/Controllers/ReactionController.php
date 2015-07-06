@@ -7,12 +7,10 @@ class ReactionController extends Controller {
 
 	/*
 	|--------------------------------------------------------------------------
-	| Welcome Controller
+	| Reaction Controller
 	|--------------------------------------------------------------------------
 	|
-	| This controller renders the "marketing page" for the application and
-	| is configured to only allow guests. Like most of the other sample
-	| controllers, you are free to modify or remove it as you desire.
+	| This controller renders the search and results pages for the application
 	|
 	*/
 
@@ -30,40 +28,47 @@ class ReactionController extends Controller {
 	}
 
 	/**
-	 * Show the application welcome screen to the user.
+	 * Handles search form submit
 	 *
 	 * @return Response
 	 */
 	public function getReactions(Request $request)
 	{
+		// Validate that atleast one drug was entered
 		if (!($request->has('drugOne') || $request->has('drugTwo'))) {
 			return redirect()->route('home')->withError('Please enter at least one drug name for your search.');
 		}
 
+		// Redirect to the listReactions route
 		return redirect()->route('listReactions', [ format_get($request->drugOne), format_get($request->drugTwo) ]);
 	}
 
 	/**
-	 * Show the application welcome screen to the user.
+	 * Displays a list of drug reactions
 	 *
 	 * @return Response
 	 */
 	public function listReactions(Request $request, $drugOne, $drugTwo = null)
 	{
+		// Store current value of show query param so that we return to the correct page
 		session()->flash('show', $request->get('show'));
 
+		// Query for all reactions
 		$reactions = $this->limitResults($this->fda->getDrugReactions($drugOne, $drugTwo));
 		
+		// Render reactions view
 		return view('reactions', compact('drugOne', 'drugTwo', 'reactions'));
 	}
 
 	/**
-	 * Show the application welcome screen to the user.
+	 * Displays demographic information for the current drug reaction
 	 *
 	 * @return Response
 	 */
 	public function listInteractions(Request $request, $reaction, $drugOne, $drugTwo = null)
 	{
+
+		// Gather necessary data for the view
 		$data = [
 			'drugOne'		=>	$drugOne,
 			'drugTwo'		=>	$drugTwo,
@@ -74,11 +79,12 @@ class ReactionController extends Controller {
 			'weights'		=>	$this->fda->getDrugReactionWeight($reaction, $drugOne, $drugTwo)
 		];
 
+		// Render demographics view
 		return view('demographics', $data);
 	} 
 
 	/**
-	 * Show the application welcome screen to the user.
+	 * Limits results array to the first 10
 	 *
 	 * @return Response
 	 */

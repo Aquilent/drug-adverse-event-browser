@@ -31,7 +31,7 @@ To setup the application in a Docker container take the following steps:
         sudo ./bin/build-prototype.sh [--branch branch_name]
 ```
 4. Run `sudo docker images`.
-
+   
    This should yield a list of (at least) the following 2 images (prototype/latest and centos/6.6), that looks something like:
 ```
        REPOSITORY          TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
@@ -39,7 +39,6 @@ To setup the application in a Docker container take the following steps:
        <none>              <none>              2775af3998b2        25 minutes ago      700.2 MB
        centos              6.6                 8b44529354f3        10 weeks ago        202.6 MB
 ```
-
 5. Now start you container from the newly created image:
 ```
       sudo ./bin/start-prototype.sh
@@ -47,7 +46,7 @@ To setup the application in a Docker container take the following steps:
 6. You should now have the prototype running in Docker. 
    You can test by running 
 ```
-      curl -l localhost -o home-page.html`
+      curl -l localhost -o home-page.html
 ```
    This will save the application home page HTML document in file home-page.html. The contents of this file should start with something like:
 ```
@@ -58,8 +57,8 @@ To setup the application in a Docker container take the following steps:
           <meta http-equiv="X-UA-Compatible" content="IE=edge">
           <meta name="viewport" content="width=device-width, initial-scale=1">
           ...
-          <meta name="title" content="Drug Adverse Event Browser">
-          ....
+          <title>Drug Reaction Finder</title>
+          ...
       </head>
       ...
       </html>

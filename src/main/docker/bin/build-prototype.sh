@@ -62,25 +62,14 @@ function install_docker {
 }
 
 function install_chef_repos {
-    local url=ssh://git@github.com/Aquilent/drug-adverse-event-browser.git
-
-    if [ "${CERTIFICATE}" != "" ]; then
-        setup_ssh_agent
-        ssh-add -t 120 "${CERTIFICATE}"
-    fi
+    local repo="github.com/Aquilent/drug-adverse-event-browser"
+    local url=
 
     mkdir -p /tmp/gsa-ads
     pushd /tmp/gsa-ads
 
     if  [ -d ./drug-adverse-event-browser ]; then
        rm -rf ./drug-adverse-event-browser
-    fi
-
-    echo "Cloning $url;"
-    git clone --branch $BRANCH $url
-
-    if [ "${CERTIFICATE}" != "" ]; then
-        kill_ssh_agent
     fi
     if [ -d "$BUILD_HOME/${NAME}/chef" ]; then
         echo "Removing old prototype Chef scripts"
@@ -91,6 +80,27 @@ function install_chef_repos {
         rm -rf "$BUILD_HOME/${NAME}/php"
     fi
 
+
+    if [ "${CERTIFICATE}" != "" ]; then
+       url="ssh://git@${repo}.git"
+       setup_ssh_agent
+       ssh-add -t 120 "${CERTIFICATE}"
+       echo "Cloning $url;"
+       git clone --branch $BRANCH $url
+       kill_ssh_agent
+    else
+       url="https://${repo}/archive/${BRANCH}.zip"
+       echo "Download $url;"
+       wget $url -O "drug-adverse-event-browser-$BRANCH.zip"
+       echo "Unzip drug-adverse-event-browser-$BRANCH.zip"
+       unzip drug-adverse-event-browser-$BRANCH.zip
+       mv ./drug-adverse-event-browser-$BRANCH ./drug-adverse-event-browser
+    fi
+
+    if [ ! -d ./drug-adverse-event-browser/ ]; then
+       echo "Failed to download repository"
+       exit 1
+    fi
     echo "Installing prototype Chef scripts"
     ls -al ./drug-adverse-event-browser/src/main
     mv -f ./drug-adverse-event-browser/src/main/chef/ "$BUILD_HOME/${NAME}/"
@@ -102,7 +112,7 @@ function install_chef_repos {
 }
 
 function build_image {
-    echo "Build '${NAME}'' in $BUILD_HOME"
+    echo "Build '${NAME}' in $BUILD_HOME"
     docker build --tag=${NAME} --rm=true --force-rm=true "$BUILD_HOME/${NAME}"
 }
 

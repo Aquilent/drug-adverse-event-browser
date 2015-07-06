@@ -37,7 +37,7 @@ To setup the application in a Docker container take the following steps:
 
 4. Run `sudo docker images`.
    
-    This should yield a list of (at least) the following 2 images (prototype/latest and centos/6.6), that looks something like:
+    This should yield a list of (at least) the following images (prototype/latest and centos/6.6), that looks something like:
 
     ```
     REPOSITORY          TAG                 IMAGE ID            CREATED             VIRTUAL SIZE

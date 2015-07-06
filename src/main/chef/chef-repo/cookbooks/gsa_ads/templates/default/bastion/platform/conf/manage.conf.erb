@@ -13,15 +13,17 @@ INT_WEB_PROTOCOL=<%= node['gsa_ads']['bastion']['int_web_protocol'] %>
 INT_WEB_HOSTNAME=<%= node['gsa_ads']['bastion']['int_web_hostname'] %>
 INT_WEB_CERTIFICATE=<%= node['gsa_ads']['project_name'] %>-int-web.pem
 INT_BRANCH_NAME=integration
+INT_URL=<%= node['gsa_ads']['bastion']['int_url'] %>
 
 TEST_WEB_PROTOCOL=<%= node['gsa_ads']['bastion']['test_web_protocol'] %>
 TEST_WEB_HOSTNAME=<%= node['gsa_ads']['bastion']['test_web_hostname'] %>
 TEST_WEB_CERTIFICATE=<%= node['gsa_ads']['project_name'] %>-test-web.pem
 TEST_BRANCH_NAME=test
+INT_URL=<%= node['gsa_ads']['bastion']['test_url'] %>
 
 PROD_WEB_PROTOCOL=<%= node['gsa_ads']['bastion']['prod_web_protocol'] %>
 PROD_WEB_HOSTNAME=<%= node['gsa_ads']['bastion']['prod_web_hostname'] %>
 PROD_WEB_CERTIFICATE=<%= node['gsa_ads']['project_name'] %>-prod-web.pem
 PROD_BRANCH_NAME=master
-
+INT_URL=<%= node['gsa_ads']['bastion']['prod_url'] %>
 

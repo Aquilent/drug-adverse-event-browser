@@ -10,13 +10,11 @@ SERVER_TYPE=
 SYNC_DIR=
 CLEAN_UP="${TRUE_VALUE}"
 RESTART="${TRUE_VALUE}"
+DOCKER_CONTAINER_ID=
 
 APPLICATION_HOME="/var/www/gsa-ads"
 
-#VARNISH_HOME="/etc/varnish"
-#VARNISH_TEMPLATES_DIR="/opt/gsa-ads/templates/varnish"
-
-RSYNC_OPTIONS="--recursive --update --delete --exclude .git/"
+RSYNC_OPTIONS="--recursive --update --delete --exclude .git/ --exclude vendor/"
 
 function get_parameters {
     while test $# -gt 0; do
@@ -33,17 +31,41 @@ function get_parameters {
     done
 }
 
+function initialize {
+    get_parameters "$@"
+    if [ -f /usr/bin/docker ]; then
+        DOCKER_CONTAINER_ID=`docker ps -q`
+        writeln "Docker container ID= [${DOCKER_CONTAINER_ID}]"
+        APPLICATION_HOME=`docker inspect "${DOCKER_CONTAINER_ID}" | \
+            grep "\"/var/www/gsa-ads\": \"/var/lib/docker/vfs/dir" | \
+            cut -d ':' -f 2 | sed -e "s/[\" ]//g"`
+        if [ ! -d "${APPLICATION_HOME}" ]; then
+            exit_error "APPLICATION_HOME '${APPLICATION_HOME}' not found"
+        fi
+        writeln "Application volume in [${APPLICATION_HOME}]"
+    fi
+}
 
 function stop_application {
     if [ "${RESTART}" == "${TRUE_VALUE}" ]; then
-        "${PLATFORM_HOME}/bin/stop-services"
+        if [ "${DOCKER_CONTAINER_ID}" != "" ]; then
+            writeln "Stopping docker image ${DOCKER_CONTAINER_ID}"
+            docker stop "${DOCKER_CONTAINER_ID}"
+        else
+            "${PLATFORM_HOME}/bin/stop-services"
+        fi
     fi
 }
 
 function start_application {
     if [ "${RESTART}" == "${TRUE_VALUE}" ]; then
-        "${PLATFORM_HOME}/bin/start-services"
-        "${PLATFORM_HOME}/bin/verify-services"
+        if [ "${DOCKER_CONTAINER_ID}" != "" ]; then
+            writeln "Starting docker image ${DOCKER_CONTAINER_ID}"
+            docker start "${DOCKER_CONTAINER_ID}"
+        else
+            "${PLATFORM_HOME}/bin/start-services"
+            "${PLATFORM_HOME}/bin/verify-services"
+        fi
     fi
 }
 
@@ -55,22 +77,17 @@ function synchronize_webserver {
     verbose "Synchronize web server"
     if [ "${TOUCH}" != "" ]; then
         verbose 'Touch remote files to ensure proper sync'
-        #find ${VARNISH_HOME}/ -exec touch {} \;
-        #find ${VARNISH_TEMPLATES_DIR}/ -exec touch {} \;
         find ${APPLICATION_HOME}/ -exec touch {} \;
     fi
-    #verbose "Synchronize varnish files"
-    #verbose rsync ${options} ${VERBOSE} ${SYNC_DIR}/varnish/ "${VARNISH_HOME}"
-    #rsync ${options} ${VERBOSE} ${SYNC_DIR}/varnish/ "${VARNISH_HOME}"
-    #verbose rsync ${options} ${VERBOSE} ${SYNC_DIR}/templates/varnish/ "${VARNISH_TEMPLATES_DIR}"
-    #rsync ${options} ${VERBOSE} ${SYNC_DIR}/templates/varnish/ "${VARNISH_TEMPLATES_DIR}"
-
     verbose "Synchronize application files"
     verbose rsync ${options} ${VERBOSE} ${SYNC_DIR}/php/ "${APPLICATION_HOME}"
     rsync ${options} ${VERBOSE} ${SYNC_DIR}/php/ "${APPLICATION_HOME}"
 
-    "${PLATFORM_HOME}/bin/install-php-composer"
-    "${PLATFORM_HOME}/bin/set-permissions"
+    if [ "${DOCKER_CONTAINER_ID}" == "" ]; then
+        "${PLATFORM_HOME}/bin/install-php-composer"
+        "${PLATFORM_HOME}/bin/set-permissions"
+    fi
+
     start_application
 }
 
@@ -80,7 +97,10 @@ function clean_up {
     fi
 }
 
-get_parameters "$@"
+initialize "$@"
+if [ "$?" != "0" ];  then
+    exit 1
+fi
 case "${SERVER_TYPE}" in
     web)  synchronize_webserver ;;
 esac

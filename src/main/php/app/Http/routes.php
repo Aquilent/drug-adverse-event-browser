@@ -11,11 +11,6 @@
 |
 */
 
-Route::get('/', function()
-{
-    return view('index');
-});
-
 Route::get('instructions', function()
 {
     return view('instructions');
@@ -31,24 +26,19 @@ Route::get('interactions', function()
     return view('interactions');
 });
 
-Route::get('outcomes', function()
-{
-    return view('outcomes');
-});
-
-Route::get('/', function()
+Route::get('/', [ 'as' => 'home', function()
 {
     return view('index');
-});
+}]);
 
 Route::post('/', 'ReactionController@getReactions');
 
-Route::get('/{drug}', [
+Route::get('/{drugOne}/{drugTwo?}', [
   'as'   => 'listReactions',
   'uses' => 'ReactionController@listReactions'
 ]);
 
-Route::get('/{drug}/{reaction}', [
+Route::get('/r/{reaction}/{drugOne}/{drugTwo?}', [
   'as'   => 'listInteractions',
   'uses' => 'ReactionController@listInteractions'
 ]);

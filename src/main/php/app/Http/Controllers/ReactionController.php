@@ -16,13 +16,16 @@ class ReactionController extends Controller {
 	|
 	*/
 
+	protected $fda;
+
 	/**
 	 * Create a new controller instance.
 	 *
 	 * @return void
 	 */
-	public function __construct()
+	public function __construct(FDAConnector $fda)
 	{
+		$this->fda = $fda;
 		$this->middleware('guest');
 	}
 
@@ -33,7 +36,11 @@ class ReactionController extends Controller {
 	 */
 	public function getReactions(Request $request)
 	{
-		return redirect()->route('listReactions', [ format_title($request->drug) ]);
+		if (!($request->has('drugOne') || $request->has('drugTwo'))) {
+			return redirect()->route('home')->withError('Please enter at least one drug name for your search.');
+		}
+
+		return redirect()->route('listReactions', [ format_get($request->drugOne), format_get($request->drugTwo) ]);
 	}
 
 	/**
@@ -41,12 +48,13 @@ class ReactionController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function listReactions(Request $request, $drug)
+	public function listReactions(Request $request, $drugOne, $drugTwo = null)
 	{
-		$connector = new FDAConnector();
-		$reactions = $this->limitResults($connector->getDrugReactions($drug));
+		session()->flash('show', $request->get('show'));
+
+		$reactions = $this->limitResults($this->fda->getDrugReactions($drugOne, $drugTwo));
 		
-		return view('reactions', compact('drug', 'reactions'));
+		return view('reactions', compact('drugOne', 'drugTwo', 'reactions'));
 	}
 
 	/**
@@ -54,12 +62,19 @@ class ReactionController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function listInteractions(Request $request, $drug, $reaction)
+	public function listInteractions(Request $request, $reaction, $drugOne, $drugTwo = null)
 	{
-		$connector = new FDAConnector();
-		$interactions = $this->limitResults($connector->getDrugReactionInteractions($drug, $reaction));
-		
-		return view('interactions', compact('drug', 'reaction', 'interactions'));
+		$data = [
+			'drugOne'		=>	$drugOne,
+			'drugTwo'		=>	$drugTwo,
+			'reaction' 	=> 	$reaction,
+			'total'			=> 	$this->fda->getDrugReactionTotal($reaction, $drugOne, $drugTwo),
+			'genders'		=>	$this->fda->getDrugReactionGender($reaction, $drugOne, $drugTwo),
+			'ages'			=>	$this->fda->getDrugReactionAge($reaction, $drugOne, $drugTwo),
+			'weights'		=>	$this->fda->getDrugReactionWeight($reaction, $drugOne, $drugTwo)
+		];
+
+		return view('demographics', $data);
 	} 
 
 	/**

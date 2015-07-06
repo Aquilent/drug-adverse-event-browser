@@ -46,8 +46,7 @@ end
 package "git" do
 end
 
-[ "manage-code", "synchronize", "setup-jenkins", "setup-jenkins-credentials"
-].each do |name|
+[ "manage-code", "synchronize", "setup-jenkins"].each do |name|
   gsa_ads_platform "#{name}" do
       template_source_dir "bastion/platform/bin"
       action :install_binary
@@ -61,10 +60,10 @@ end
   end
 end
 
-
 #------------------------------------------------------------------------------
 #             Install Jenkins
 #------------------------------------------------------------------------------
+
 
 node.default['jenkins']['master']['install_method'] = 'package'
 
@@ -88,4 +87,92 @@ end
   end
 
 end  
+
+[ "setup-jenkins", "setup-jenkins-credentials" ].each do |name|
+    gsa_ads_platform "#{name}" do
+        template_source_dir "bastion/platform/bin"
+        action :install_binary
+    end
+end
+
+message = <<EOH
+
+=============================================================================
+Jenkins uses script to install new version of the code on the web server.
+To do so securely Jenkis needs to have access to security keys that enable
+access to the remote web servers.
+
+Once the Chef provisioinng completes, use ssh to connect to this server 
+and run the following command to setup those keys:
+        sudo /opt/gsa-ads/bin/setup-jenkins
+Verify the signatures of the hosts when prompted.
+If asked for a password, simply click the <Enter> key"
+
+NOTE: We not deploying using Vagrant, you must copy the keys to the ~/.ssh
+   directory of the user used to run the Chef scripts.
+=============================================================================
+
+EOH
+Chef::Log.warn(message)
+
+
+#------------------------------------------------------------------------------
+#             Install Selenium and PhantomJS
+#------------------------------------------------------------------------------
+
+case node['kernel']['machine'].to_s
+when 'x86_64' 
+    PHANTOMJS_ARCH = "x86_64"
+when 'i386'   
+    PHANTOMJS_ARCH = "i386"
+else 
+    PHANTOMJS_ARCH=nil
+end
+
+if PHANTOMJS_ARCH.nil? then
+  message = <<EOH
+
+=============================================================================
+We currently do not support PhantomJS for your kernel type (#{node['kernel']['nachine']}).
+PhantomJS will not be provisioned, such that it is not possible to run 
+Selenium tests.
+=============================================================================
+EOH
+  Chef::Log.warn(message)
+else
+  directory "/opt/phantomjs/" do
+      mode "755"
+      owner "root"
+      group "root"
+  end 
+
+  directory "/opt/phantomjs/bin" do
+      mode "755"
+      owner "root"
+      group "root"
+  end 
+
+  cookbook_file "/opt/phantomjs/bin/phantomjs" do
+      source "bastion/phantomjs-#{PHANTOMJS_ARCH}"
+      mode "755"
+      owner "root"
+      group "root"
+  end
+
+  # ensure phantomjs JS is on the (standard) path, such that the selenium 
+  # PhantomJS webdriver can find the executable
+  link "/usr/bin/phantomjs" do
+      link_type "symbolic"
+      to "/opt/phantomjs/bin/phantomjs"
+  end
+
+  [ "run-selenium-tests" ].each do |name|
+    gsa_ads_platform "#{name}" do
+        template_source_dir "bastion/platform/bin"
+        action :install_binary
+    end
+  end
+
+
+end
 

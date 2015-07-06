@@ -2,6 +2,13 @@
 
 class TestCase extends Illuminate\Foundation\Testing\TestCase {
 
+	public function tearDown()
+	{
+	  Mockery::close();
+
+	  parent::tearDown();
+	}
+
 	/**
 	 * Creates the application.
 	 *
@@ -14,6 +21,15 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase {
 		$app->make('Illuminate\Contracts\Console\Kernel')->bootstrap();
 
 		return $app;
+	}
+
+	public function mock($class)
+	{
+	  $mock = Mockery::mock($class);
+	 
+	  $this->app->instance($class, $mock);
+	 
+	  return $mock;
 	}
 
 }

@@ -29,25 +29,25 @@ Take the following steps to setup for running the Drug Reaction Finder in a virt
     @echo off
     
     set PROJECT_HOME=/path/to/drb/installation/directory
-    REM e.g. set PROJECT_HOME=C:/Project/DRF
+    REM e.g. set PROJECT_HOME=C:\Project\DRF
     set PROJECT_NAME=DRF
     
     set GIT_HOME=/path/to/git/installation/directory
-    REM e.g. set GIT_HOME=C:/Program Files (x86)/git
+    REM e.g. set GIT_HOME=C:\Program Files (x86)\git
     set VAGRANT_HOME=/path/to/vagrant/installation/directory
-    REM e.g. set VAGRANT_HOME=C:/Programs Files (x86)/Vagrant
+    REM e.g. set VAGRANT_HOME=C:\Programs Files (x86)\Vagrant
     
     set PATH=%PATH%;%GIT_HOME:/=\%\bin;;%VAGRANT_HOME:/=\%\bin
     
     set BRANCH_NAME=master
-    set BRANCH_HOME=%PROJECT_HOME%/branches/%BRANCH_NAME%
+    set BRANCH_HOME=%PROJECT_HOME%\branches\%BRANCH_NAME%
     
     REM Uncomment the following line if you are using a Virtual workspace, such a AWS Workspaces
     REM set DEFAULT_VAGRANT_BOX=chef/centos-6.6-i386
     
     echo Change directory to %BRANCH_HOME%
     C:
-    cd %BRANCH_HOME%/bin
+    cd %BRANCH_HOME%\bin
     
     vagrant-up default
     ```

@@ -90,3 +90,9 @@ If that happens, you should uncomment the line
     ```
 in the `drf.cmd` script by removing the word `REM`. Note that it is normal to see the line **`app: Warning: Connection timeout. Retrying...`** at least several times, while Vagrant waits for the VirtualBox VM to complete booting. How many times, depends on the configuration of your computer, how much work the computer is currently doing, etc.
 10. Open a browser and browse to http://192.168.11.12 and you should see and be able to use the application.  Congratulations!
+
+# Use For Development
+
+The local environment is used by developers to verify changes to the web application. In order to do this, a developers uses `git clone` to pull the source code from the repository into a `branches` subdirectory in the Project Home directory for the relevant branch (typically the integration branch), e.g. `C:\Project\DRF\branches\integration` This replaces step 3 through 6 in the above description.
+
+Once a developer has run the Vagrant/Chef provisioning of the virtual machine, the developer can make changes to the application source code and test the changes immediately in the locally host application. In some limited cases, the virtual machine has to be reprovisioned, using `vagrant provision` to reprovisioing the local virtual machine. Once the developer completes testing the changes, the developer commits those changes to the integration branch. 

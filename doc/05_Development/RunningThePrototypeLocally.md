@@ -1,5 +1,5 @@
 # Introduction
-This page describes how to download and run the drug-adverse-event-browser on your local machine using Vagrant and Oracle VirtualBox
+This page describes how to download and run the Drug Reaction Finder (previously known as the drug-adverse-event-browser) on your local machine using Vagrant and Oracle VirtualBox
 
 # Description
 Vagrant is a tool that can be used to provision virtual machines via a Ruby configuration file. It can provision VirtualBox, VMWare and AWS virtual machine. Vagrant makes it extremely simple to create, configure destroy, and recreate virtual machines. Vagrant configuration includes network settings and mounting of local directories to the VM. All of this configuration is handled via the configuration text file, the Vagrantfile. Using a text file enables versioning and sharing of your VM configuration.
@@ -12,22 +12,25 @@ Vagrant is a tool that can be used to provision virtual machines via a Ruby conf
 # Caveats
 When using a virtual machine, or virtual workspace (such as AWS Workspaces) to run VirtualBox this may not work, as some virtualization software can block or prevent further (nested) virtualization. Sometimes you need to downscale the architecture from 64-bits to 32-bits, when running in a 64-bit virtual environment. See instructions below how to down-scale.
 
-# Installation
-Take the following steps to setup for running the drug-adverse-event-browser in a virtual machine on Windows:
+# Note
+The prototype is called the Drug Reaction Finder (DRF).  The original name of the prototype was the Drug Adverse Event Browser, and thus, the repository is called the drug-adverse-event-browser.  This is consistent in the installation instructions below. 
 
-1. Create The Project Home directory, e.g. `C:\Project\DAEB`. You will install the project code into this directory
-2. Create a `bin` subdirectory in the Project Home directory, e.g. `C:\Project\DAEB\bin`
-3. Create a `branches` subdirectory in the Project Home directory, e.g. `C:\Project\DAEB\branches`
+# Installation
+Take the following steps to setup for running the Drug Reaction Finder in a virtual machine on Windows:
+
+1. Create The Project Home directory, e.g. `C:\Project\DRF`. You will install the project code into this directory
+2. Create a `bin` subdirectory in the Project Home directory, e.g. `C:\Project\DRF\bin`
+3. Create a `branches` subdirectory in the Project Home directory, e.g. `C:\Project\DRF\branches`
 4. Download the master branch from https://github.com/Aquilent/drug-adverse-event-browser by using clicking "Download ZIP" and saving the file locally.
-5. Extract the `drug-adverse-event-browser-master.zip` file to the newly created branches directory, e.g. `C:\Project\DAEB\branches\drug-adverse-event-browser-master`.
+5. Extract the `drug-adverse-event-browser-master.zip` file to the newly created branches directory, e.g. `C:\Project\DRF\branches\drug-adverse-event-browser-master`.
 6. Rename the branch directory from `drug-adverse-event-browser-master` to `master`
-7. Create a file `daeb.cmd` in the Project Home bin directory (e.g. `C:\Project\DAEB\bin\daeb.cmd`) with the following contents:
+7. Create a file `drf.cmd` in the Project Home bin directory (e.g. `C:\Project\DRF\bin\drf.cmd`) with the following contents:
     ```
     @echo off
     
-    set PROJECT_HOME=/path/to/daeb/installation/directory
-    REM e.g. set PROJECT_HOME=C:/Project/DAEB
-    set PROJECT_NAME=DAEB
+    set PROJECT_HOME=/path/to/drb/installation/directory
+    REM e.g. set PROJECT_HOME=C:/Project/DRF
+    set PROJECT_NAME=DRF
     
     set GIT_HOME=/path/to/git/installation/directory
     REM e.g. set GIT_HOME=C:/Program Files (x86)/git
@@ -84,5 +87,5 @@ If that happens, you should uncomment the line
     ```
     REM set DEFAULT_VAGRANT_BOX=chef/centos-6.6-i386
     ```
-in the `daeb.cmd` script by removing the word `REM`. Note that it is normal to see the line **`app: Warning: Connection timeout. Retrying...`** at least several times, while Vagrant waits for the VirtualBox VM to complete booting. How many times, depends on the configuration of your computer, how much work the computer is currently doing, etc.
+in the `drf.cmd` script by removing the word `REM`. Note that it is normal to see the line **`app: Warning: Connection timeout. Retrying...`** at least several times, while Vagrant waits for the VirtualBox VM to complete booting. How many times, depends on the configuration of your computer, how much work the computer is currently doing, etc.
 10. Open a browser and browse to http://192.168.11.12 and you should see and be able to use the application.  Congratulations!

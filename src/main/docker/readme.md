@@ -11,7 +11,7 @@
 To setup the application in a Docker container take the following steps:
 
 1. Copy the entire bin and prototype directory to the home directory on 
-   the host machine where you want to run ythe prototype inside docker.
+   the host machine where you want to run the prototype inside docker.
 
    Running `ls -l` should give you something like:
 ```

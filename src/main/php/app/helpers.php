@@ -3,10 +3,10 @@
 if ( ! function_exists('format_title'))
 {
 	/**
-	 * Assign high numeric IDs to a config item to force appending.
+	 * Formats passed string in title case
 	 *
-	 * @param  array  $array
-	 * @return array
+	 * @param  string
+	 * @return string
 	 */
 	function format_title($string)
 	{
@@ -17,10 +17,10 @@ if ( ! function_exists('format_title'))
 if ( ! function_exists('format_get'))
 {
 	/**
-	 * Assign high numeric IDs to a config item to force appending.
+	 * Encodes/escapes user input so that it is suitable as a GET parameter
 	 *
-	 * @param  array  $array
-	 * @return array
+	 * @param  string
+	 * @return string
 	 */
 	function format_get($string)
 	{

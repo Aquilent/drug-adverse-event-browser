@@ -8,13 +8,13 @@ Our research confirmed that citizens were concerned about having “bad reaction
 ### Methodology & Guiding Principles
 Our Agile methodology for this and all Aquilent projects was based on the following guiding principles: 
 *	**Solution Impact** — our research confirmed there was a user need for **Drug Reaction Finder**, and was further supported by FAERS statistics and medical attention on drug reactions (e.g. the [2014 ADE Prevention Conference](http://www.health.gov/hcq/ade.asp) to ‘identify opportunities that ensure safe and high-quality care for patients prescribed anticoagulants, diabetes agents, and opioids.’).
-* **User-Centric** — we researched user needs to create a **useful _and_ usable** solution, ensuring user needs are the center of all design and development decisions, validating with usability testing and making iterative improvements based on results, while also adopting a mobile-first design approach **(Play 1)**
-* **Iteration** – we held daily Scrum team meetings to discuss the collection of user feedback.  As a result, launched short-cycle design and development releases to GitHub to make user-focused improvements
+* **User-Centric** — researched user needs to create a **useful _and_ usable** solution, ensuring user needs were the center of all design and development decisions, validating with usability testing and making iterative improvements based on results, while also adopting a mobile-first design approach **(Play 1)**
+* **Iteration** – held daily Scrum team meetings to discuss the collection of user feedback.  As a result, launched short-cycle design and development releases to GitHub to make user-focused improvements
 * **Rapid Delivery** — Aquilent performed continuous deployment, based on user stories, to an AWS IaaS environment that facilitated rapid feedback on our short-cycle Sprints
-* **Default to Open** — we chose proven, open-source languages and tools, such as PHP, Laravel, Twitter Bootstrap **(Play 2)**, JQuery, Google Fonts, Linux, Docker, Jenkins, Vagrant, VirtualBox, and Chef **(Play 8, 13)**
+* **Default to Open** — chose proven, open-source languages and tools, such as PHP, Laravel, Twitter Bootstrap **(Play 2)**, JQuery, Google Fonts, Linux, Docker, Jenkins, Vagrant, VirtualBox, and Chef **(Play 8, 13)**
 
 ### Scrum Team & Sprints
-Aquilent worked as an integrated, collaborative, cross-functional Scrum team (Play 7). Importantly, our team was entirely comprised of full-time Aquilent employees, offering further evidence of our ability to quickly mobilize full-stack teams in response to emerging needs under this BPA. Our project team included the following roles:
+Aquilent worked as an integrated, collaborative, cross-functional Scrum team **(Play 7)**. Importantly, our team was entirely comprised of full-time Aquilent employees, offering further evidence of our ability to quickly mobilize full-stack teams in response to emerging needs under this BPA. Our project team included the following roles:
 * Product Manager
 * Delivery Manager
 * Visual Designer
@@ -29,7 +29,7 @@ Aquilent worked as an integrated, collaborative, cross-functional Scrum team (Pl
 
 The Product Manager **(Play 6)** was our single interface with the 18F customer, representing all views and needs of the customer, and held overall accountability for the product.  **Sprint 1** focused on essential functions for the prototype, adding user stories to Backlog to establish a framework for future iterations. All work plans were loaded into a JIRA Agile board to assign responsibility and track accountability **(Play 4)**.  As part of our budget process, our Business Analyst and Technical Architect worked with the Product Manager to align resources with deliverables **(Play 5)**.
 
-For **Sprint 2** (added due to RFQ extension), we held a Scrum to add a short-cycle Sprint to the schedule.  Sprint 2 focused on high-priority Backlog items, including two major usability enhancements, driven by usability test results. When Sprint 2 was completed, we conducted an additional round of usability testing to validate usability of Sprint 2 enhancements.
+For **Sprint 2** (added due to RFQ extension), we held a Scrum to add a short-cycle Sprint to the schedule. Sprint 2 focused on high-priority Backlog items, including two major usability enhancements, driven by usability test results. When Sprint 2 was completed, we conducted an additional round of usability testing to validate usability of Sprint 2 enhancements.
 
 ### User Experience (UX) Research & Design
 Using research-based, human factors techniques, we ensured that end-user needs were in focus throughout the entire project lifecycle. Techniques included:

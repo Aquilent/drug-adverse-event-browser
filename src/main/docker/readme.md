@@ -22,12 +22,14 @@ To setup the application in a Docker container take the following steps:
    
 2. From your home directory run
 ```
-        chmod 755 bin/*.sh`
+        chmod 755 bin/*.sh
 ```
 3. Install docker, start docker, and build your Docker image from a 
-   standard CentOS 6.6 Docker image by running
+   standard CentOS 6.6 Docker image by running the following command,
+   where `branch_name` is `master`, `test`, or `integration` (if you
+   don't specify a branch, it will default to `master`):
 ```
-        sudo ./bin/build-prototype.sh`. 
+        sudo ./bin/build-prototype.sh [--branch branch_name]
 ```
 4. Run `sudo docker images`.
 

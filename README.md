@@ -1,3 +1,3 @@
-# drug-adverse-event-browser
+# Drug Reaction Finder
 ##Aquilent’s Agile History
 Aquilent is committed to Agile delivery methodologies that yield successful technology solutions across the Federal sector. Of particular note, Aquilent provides full-stack, Agile-based digital services for Healthcare.gov. In 2014, CMS chose Aquilent to lead key facets of the marketplace rehabilitation effort. Utilizing an Agile approach, we produced that directly facilitated the recently concluded, highly successful open enrollment period. Additionally, Aquilent utilized an Agile approach to design and develop the Healthy Living Assessment (HLA) for the Department of Veterans Affairs; an interactive tool that supports improved health care decisions for our nation’s Veterans.

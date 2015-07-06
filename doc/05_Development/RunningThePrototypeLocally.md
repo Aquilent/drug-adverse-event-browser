@@ -51,7 +51,8 @@ Take the following steps to setup for running the Drug Reaction Finder in a virt
     
     vagrant-up default
     ```
-8. Run the newly created script. This will bring up your virtual machine, and setup all the necessary software on that virtual machine, as well as the application.
+8. Make sure you set the environment variables in the script to the appropriate paths.  For example, in the script, make sure you set PROJECT_HOME to the location you created in step 1 above.
+9. Run the newly created script. This will bring up your virtual machine, and setup all the necessary software on that virtual machine, as well as the application.
 
 9. Once the script finishes it will show the following (or similar) output:
 

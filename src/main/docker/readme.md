@@ -12,14 +12,13 @@ To setup the application in a Docker container take the following steps:
 
 1. Copy the entire [bin](bin) and [prototype](prototype) directory to the home directory on 
    the host machine where you want to run the prototype inside docker.
-
+   
    Running `ls -l` should give you something like:
 ```
         total 28
         drwxrwxr-x 2 ec2-user ec2-user  4096 Jul  2 19:49 bin
         drwxrwxr-x 4 ec2-user ec2-user  4096 Jul  2 19:13 prototype
-```   
-   
+```
 2. From your home directory run
 ```
         chmod 755 bin/*.sh

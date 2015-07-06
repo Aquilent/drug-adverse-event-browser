@@ -8,6 +8,15 @@ contents=`cat <<EOH
       "project_name": "GSA-ADS",
       "environment": "ENVIRONMENT_NAME",
       "aws_region": "us-east1",
+      // Uncomment to use AWS Logs (Cloudwatch)
+      //"aws_logwatch": {
+      //    "install": true,
+      //    "log_group": "LOGGROUP_NAME", // Replace with name of actual AWS Cloudwatch LogGroup
+      //    "files": {  // files to watch in addition to default files
+      //       "httpd-error": {"path": "/var/log/httpd/error.log"},
+      //       "httpd-access": {"path": "/var/log/httpd/access.log"}
+      //   }
+      //},
       "iptables": {
           "enabled": false
       },

@@ -23,7 +23,7 @@ Aquilent worked as an integrated, collaborative, cross-functional Scrum team **(
 * Interaction Designer/User Researcher/Usability Tester
 * DevOps Engineer
 * Frontend Web Developer
-* Front-End Web Developer (QA Tester)
+* Frontend Web Developer (QA Tester)
 * Technical Architect
 * Business Analyst 
 * Writer/Content Designer/Content Strategist
@@ -53,14 +53,14 @@ To create the working prototype, our Agile development team followed our typical
 * **Security** — deployed the environments into a VPC with a proven infrastructure, controlling access through security groups and a bastion host.  The application writes all auditable events to enable continuous monitoring **(Play 12)**
 * **Development** — developed front-end and back-end code, using a fully open source toolset including  Linux, Docker, Apache HTTP, PHP, Laravel Framework, Python, Twitter Bootstrap, and many others **(Play 8)**.  We created documentation to install and run the prototype on another machine
 * **QA** — conducted full-lifecycle testing, including unit testing using PHPUnit, automated functional testing using Selenium **(Play 10)**, and manual testing 
-* **Versioning** — used GitHub source code management to streamline versioning, issue referencing, and revision control; we also used JIRA to track Agile sprints, issues, and change requests, tasks, etc, and linked to JIRA to GitHub via DVCS connector **(Play 4)**
+* **Versioning** — used GitHub source code management to streamline versioning, issue referencing, and revision control; we also used JIRA to track Agile sprints, issues, and change requests, tasks, etc, and linked JIRA to GitHub via DVCS connector **(Play 4)**
 
 ### Conclusion
 The Aquilent project team used a thorough Agile approach to design and develop the full-stack prototype based on research yielding user needs and overall potential impact to citizens:
 * **Usability Test #1** — Following Sprint 1, Aquilent conducted Usability Testing to guide future iterations.  This yielded several findings, particularly related to second drug search.  Based on these findings, we determined a need to:
   * Change link from Reaction list item in search results from drug interaction data to additional details about the Reaction reported
   * Add one or more additional search fields to the search functionality to make it easier to search for reactions to drug combinations
-* **Sprint 2** — made terminology more consistent, updated drug brand names to generic drug names, made enhancements to mobile user experience including improved display of results to show in title case format, and improved button display  
+* **Sprint 2** — made terminology more consistent, updated drug brand names to valid trade names, made enhancements to mobile user experience including improved display of results to show in title case format, and improved button display  
 * **Usability Test #2** — validated that updates made during Sprint #2 addressed usability issues.  
 * **Planned Future Improvements** — determined user needs for pie chart views of reported outcomes, and pie chart views for reported adverse reactions to present the data that is clear and easy to interpret.  Usability Test #2 also yielded the next round of prototype enhancements including search result display, pagination, severity designation, labeling, and filtering.  
 
@@ -69,5 +69,5 @@ Overall, this exercise established a framework that could support the ongoing de
 ### License
 The Drug Reaction Finder prototype tool is free of charge **(Play 13)**, open-sourced software under the [MIT license](http://opensource.org/licenses/MIT).
 
-Additional artifacts supporting our Agile process for this prototype can be found [in the repository](https://github.com/Aquilent/drug-adverse-event-browser/tree/master/doc). The running Drug Reaction Finder prototype tool will be available in AWS until August 21, 2015.
+Additional artifacts supporting our Agile process for this prototype can be found [in the repository](doc/). The running Drug Reaction Finder prototype tool will be available in AWS until August 21, 2015.
 

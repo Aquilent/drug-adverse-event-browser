@@ -11,7 +11,7 @@ Both types of tests can be run locally by Testers and Developers. The Tests can 
 
 ## How to Run Selenium Tests Locally
 
-1. Download the [Selenium Server](https://github.com/Aquilent/drug-adverse-event-browser/blob/master/src/main/chef/chef-repo/cookbooks/gsa_ads/files/default/bastion/selenium-server-standalone-2.46.0.jar)
+1. Download the [Selenium Server](https://github.com/Aquilent/drug-adverse-event-browser/blob/master/src/main/chef/chef-repo/cookbooks/gsa_ads/files/default/bastion/selenium-server-standalone-2.46.0.jar?raw=true)
 2. Start the server from a Windows Prompt in the directory where you downloaded the Selenium Server into
    1. Open Windows File Explorer; Browse to the parent directory of the directory where the jar file is stored; Right-click the directory while Holding down the shift-key; Select "Open command window here ..."
    2. Open a Command Prompt; change directory to where you down loaded the server (`cd /path/to/directory`)
